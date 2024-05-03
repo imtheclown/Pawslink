@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
         height: 48,
         borderRadius: Border.br_5xs,
         backgroundColor: Color.colorWhite,
+        color: "#171a1f"
     },
     searchBarContainer: {
         alignItems:'center',

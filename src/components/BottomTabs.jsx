@@ -5,6 +5,8 @@ import { fetch } from "@react-native-community/netinfo";
 import BrowseAnimals from "../screens/BrowseAnimals";
 import AnimalQRCodeScanner from "../screens/AnimalQRCodeScanner";
 import { ConnectionContext } from "./ConnectionContext";
+import ForumScreen from "../screens/ForumScreen";
+import NeedLoginScreen from "../screens/NeedLogInScreen";
 
 // filler tab
 const SampleTabs = () =>{
@@ -72,7 +74,7 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Events"
-          component={SampleTabs}
+          component={NeedLoginScreen}
           options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -116,7 +118,7 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Forums"
-          component={SampleTabs}
+          component={NeedLoginScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({focused}) => (

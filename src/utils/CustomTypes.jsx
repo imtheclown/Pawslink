@@ -21,4 +21,17 @@ DOG: 'dog',
 CAT: 'cat'
 };
 
-export {Species, LifeStatus, Sex, FertilityStatus}
+const FemaleAnimalStatus = {
+    LACTATING : 'lactating',
+    PREGNANT: 'pregnant',
+    NORMAL: 'normal'
+
+}
+
+const EmptyAttributeFiller = {
+    UNKNOWN: 'unknown',
+    NA: 'NA'
+}
+
+export {Species, LifeStatus, Sex, FertilityStatus, FemaleAnimalStatus, EmptyAttributeFiller}
+

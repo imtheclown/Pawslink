@@ -42,6 +42,8 @@ const SerializableAnimalInstance = (animalObject) =>{
     }
     return serializedAnimal
 }
+
+export {SerializableAnimalInstance}
 // returns JSX element
 function AnimalProfileBox({flatListItem}){
     // destructure the props, an object following the animal schema
