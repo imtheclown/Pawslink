@@ -15,7 +15,10 @@ import LandingPageScreen from "./src/screens/LandingScreen";
 import NeedLoginScreen from "./src/screens/NeedLogInScreen";
 import LoadingScreen from "./src/screens/Loading";
 import EventsScreen from "./src/screens/EventsScreen";
-import AdoptionFormScreen from "./src/screens/AdoptionFormScreen";
+import AdoptionFormScreen1 from "./src/screens/AdoptionFormScreen1";
+import AdoptionFormScreen2 from "./src/screens/AdoptionFormScreen2";
+import AdoptionFormScreen3 from "./src/screens/AdoptionFormScreen3";
+import AdoptionFormScreen4 from "./src/screens/AdoptionFormScreen4";
 const AppStack = () =>{
     return(
         <BrowseStack.Navigator>
@@ -62,16 +65,43 @@ const AppStack = () =>{
               }
             }
             />
+            <BrowseStack.Screen
+            name="Adoption Form 1"
+            component={AdoptionFormScreen1}
+            options={{
+              headerShown: false
+            }}
+            />
+            <BrowseStack.Screen
+            name="Adoption Form 2"
+            component={AdoptionFormScreen2}
+            options={{
+              headerShown: false
+            }}
+            />
+            <BrowseStack.Screen
+            name="Adoption Form 3"
+            component={AdoptionFormScreen3}
+            options={{
+              headerShown: false
+            }}
+            />
+            <BrowseStack.Screen
+            name="Adoption Form 4"
+            component = {AdoptionFormScreen4}
+            options={{
+              headerShown: false
+            }}
+            />
         </BrowseStack.Navigator>
     )
 }
 const App = () => {
   Realm.copyBundledRealmFiles()
   return (
-      // <NavigationContainer>
-      //   <AppStack/>
-      // </NavigationContainer>
-      <AdoptionFormScreen/>
+      <NavigationContainer>
+        <AppStack/>
+      </NavigationContainer>
   );
 };
 export default App;

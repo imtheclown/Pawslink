@@ -23,3 +23,25 @@ class Animal extends Realm.Object{
 }
 
 export {Animal}
+
+class Animals extends Realm.Object{
+    static schema = {
+        name: 'Animals',
+        properties: {
+            _id: 'objectId',
+            dateGiven: {type: 'date', optional: true},
+            location: { type: 'list', objectType: 'string' },
+            mainName: 'string',
+            sex: { type: 'string', default: Sex.UNDETERMINED }, 
+            status:{ type: 'list', objectType: 'string', default: [LifeStatus.ALIVE] }, 
+            coatColor: { type: 'list', objectType: 'string', default: [] },
+            imgUrl: 'string',
+            notes: { type: 'list', objectType: 'string', default: [] },
+            species: 'string',
+            traitsAndPersonality: { type: 'list', objectType: 'string', default: [] },
+            disabilities: { type: 'list', objectType: 'string', default: [] },
+            age: 'int'
+        },
+        primaryKey : '_id'
+    }
+}

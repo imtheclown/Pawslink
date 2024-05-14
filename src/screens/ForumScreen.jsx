@@ -11,8 +11,13 @@ import { Pressable,
 } from "react-native";
 import { Border, Color, FontFamily, FontSize } from "../assets/forum/GlobalStyles";
 import PostContainer from "../components/PostContainer";
+import { useNavigation } from "@react-navigation/native";
 
 const ForumScreen = () =>{
+    const navigation = useNavigation();
+    const NavigateToCreatePost= () => {
+        navigation.navigate("Create Post")
+    }
     return(
         <SafeAreaView style = {[styles.flexContainer]}>
             {/* main container */}
@@ -28,7 +33,9 @@ const ForumScreen = () =>{
                                 have something to share?
                             </Text>
                         </View>
-                        <TouchableOpacity style= {[styles.addPostButton]}>
+                        <TouchableOpacity style= {[styles.addPostButton]}
+                            onPress={NavigateToCreatePost}
+                        >
                             <Text style ={[styles.addPostText]}>
                                 + add a post
                             </Text>

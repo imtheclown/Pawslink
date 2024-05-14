@@ -7,6 +7,7 @@ import AnimalQRCodeScanner from "../screens/AnimalQRCodeScanner";
 import { ConnectionContext } from "./ConnectionContext";
 import ForumScreen from "../screens/ForumScreen";
 import NeedLoginScreen from "../screens/NeedLogInScreen";
+import EventsScreen from "../screens/EventsScreen";
 
 // filler tab
 const SampleTabs = () =>{
@@ -74,7 +75,7 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Events"
-          component={NeedLoginScreen}
+          component={EventsScreen}
           options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -118,7 +119,7 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Forums"
-          component={NeedLoginScreen}
+          component={ForumScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({focused}) => (
@@ -137,7 +138,7 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Profile"
-          component={SampleTabs}
+          component={NeedLoginScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({focused}) => (

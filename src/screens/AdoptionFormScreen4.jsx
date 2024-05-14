@@ -6,54 +6,65 @@ import { View,
     TouchableOpacity,
     Image
 } from "react-native";
+
 import { FontFamily, Color, FontSize, Border } from "../assets/forms/GlobalStyles";
 import FormButton from "../components/FormButton";
 import { useState } from "react";
-import AdoptionForm1 from "../components/AdoptionForm1";
-import AdoptionForm2 from "../components/AdoptionForm2";
-import AdoptionForm3 from "../components/AdoptionForm3";
-import AdoptionForm4 from "../components/AdoptionForm4";
-import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
+import FormTextInput from "../components/FormTextInput";
+import { capitalizeFirstLetter, splitByDash } from "../utils/TextBasedUtilityFunctions";
+import RadioButton from "../components/RadioButton";
 
+const AdoptionFormScreen4 = ({route, navigation}) => {
+    const [basicNecessities, setBasicNecessities] = useState("")
+    const [enrichmentAct, setEnrichmentAct] = useState("")
+    const [awarenessSource, setAwarenessSource] = useState("")
 
-const AdoptionFormScreen = () =>{
-
-    // header will just change in terms of name
-    // scrollview forms will be the one to change per press of buttons
-    // create states for this
-    const show = false;
-    const [formNumber, setFormNumber] = useState(1)
-
-    const GoToNextForm = () =>{
-        if(formNumber < 4){
-            setFormNumber(formNumber + 1)
+    const generateRouteParam = () =>{
+        return{
+            ...route.params,
+            basicNecessities,
+            enrichmentAct,
+            awarenessSource
         }
     }
-    const GoBackToPreviousForm = () =>{
-        if(formNumber > 1){
-            setFormNumber(formNumber -1)
-        }
-    }
-    return(
+    return (
         <SafeAreaView style = {[styles.mainContainer, styles.flexContainer]}>
             {/* contentcontainer */}
             <View style = {[styles.header, styles.centeredContainer]}>
-                <Text style = {[styles.headerText]}>verify for adoption</Text>
+                <Text style = {[styles.headerText]}>
+                    {capitalizeFirstLetter("other questions")}
+                </Text>
             </View>
                 {/* form */}
             <View style = {[styles.formContainer, styles.centeredContainer]}>
                 <ScrollView style = {[styles.scrollViewContainer]}>
-                    {/* text */}
-                    {/* this is present on all of the pages */}
-                    <AdoptionForm1/>
+                    <FormTextInput
+                    value={basicNecessities}
+                    valueSetter={setBasicNecessities}
+                    title={"name five (5) basic necessities for dogs/cats?"}
+                        numLines={5}
+                    />
+                    <FormTextInput
+                        value={enrichmentAct}
+                        valueSetter={setEnrichmentAct}
+                        title={"name one (1) enrichment activity for dog/cat?"}
+                    />
+                    <RadioButton
+                        valueSetter={setAwarenessSource}
+                        title={"how did you hear about us?"}
+                        selectionList={[
+                            {id: 1, label: capitalizeFirstLetter(splitByDash("social_media")), value: "social_media"},
+                            {id: 2, label: capitalizeFirstLetter(splitByDash("Friends/Acquaintances/Family")), value: "Friends/Acquaintances/Family"},
+                            {id: 3, label: capitalizeFirstLetter(splitByDash("classmates")), value: "classmates"},
+                            {id: 4, label: capitalizeFirstLetter(splitByDash("posters")), value: "posters"},
+                        ]}
+                    />
                     <FormButton
-                        eventHandler={GoToNextForm}
                         textlabel={"next"}
                         styleButton={styles.nextButton}
                         styleText={styles.nextText}
                     />
                     <FormButton
-                        eventHandler={GoBackToPreviousForm}
                         textlabel={"return to previous page"}
                         styleButton={styles.returnButton}
                         styleText={styles.returnText}
@@ -63,6 +74,7 @@ const AdoptionFormScreen = () =>{
         </SafeAreaView>
     )
 }
+
 const styles = StyleSheet.create({
     flexContainer:{
         flex: 1,
@@ -121,9 +133,7 @@ const styles = StyleSheet.create({
     nextText:{
         color: Color.colorWhite,
     },
-    // list of checkboxes
-    // file picker
-    
+
 })
 
-export default AdoptionFormScreen
+export default AdoptionFormScreen4

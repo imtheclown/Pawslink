@@ -2,7 +2,6 @@ import * as React from "react";
 import { Pressable, Text, StyleSheet, View, Image, SafeAreaView, ScrollView, FlatList } from "react-native";
 import { Color, FontFamily, FontSize } from "../assets/view_animal/GlobalStyles";
 
-
 // placeholders for nows
 const lastVaccination = {
     title: 'VACCINATED LAST:',
@@ -41,6 +40,9 @@ const ViewAnimal = ({route, navigation}) =>{
     const boxes = [newAge, newStatus, lastVaccination, lastDeworm]
     const goBackToBrowse = () =>{
         navigation.goBack();
+    }
+    const gotoForms = () =>{
+        navigation.navigate({name:'Adoption Form 1'})
     }
     return(
         <SafeAreaView 
@@ -123,7 +125,7 @@ const ViewAnimal = ({route, navigation}) =>{
                     <View style = {[styles.adoptButtonContainer]}>
                         <Pressable
                             style={[styles.adoptMeButton]}
-                            onPress={() => {}}
+                            onPress={gotoForms}
                         >
                             <Text style={styles.adoptButtonText}>adopt me</Text>
                         </Pressable>

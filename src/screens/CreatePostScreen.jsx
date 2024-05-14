@@ -9,8 +9,13 @@ import { SafeAreaView,
     TouchableWithoutFeedback,
     Keyboard
 } from "react-native"
+import { useNavigation } from "@react-navigation/native";
 import { FontSize, FontFamily, Border, Color } from "../assets/create_post/GlobalStyles";
 const CreatePostScreen = () =>{
+    const navigation = useNavigation();
+    const GoBackToPreviousScreen = () =>{
+        navigation.goBack()
+    }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView style = {[styles.flexContainer, styles.mainContainer]}>
@@ -52,7 +57,9 @@ const CreatePostScreen = () =>{
                 <TouchableOpacity style={[styles.postButton]}>
                     <Text style = {[styles.postButtonText]}>post</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style = {[styles.cancelButton]}>
+                <TouchableOpacity style = {[styles.cancelButton]}
+                onPress={GoBackToPreviousScreen}
+                >
                     <Text style = {[styles.cancelText]}>cancel</Text>
                 </TouchableOpacity>
             </View>
