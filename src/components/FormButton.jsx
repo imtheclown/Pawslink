@@ -8,15 +8,23 @@ import { View,
 } from "react-native";
 import { FontFamily, Color, FontSize, Border } from "../assets/forms/GlobalStyles";
 import { useNavigation } from "@react-navigation/native";
-const FormButton = ({textlabel, styleButton, styleText, eventHandler}) => {
-
+import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
+const FormButton = ({textlabel, styleButton, styleText, eventHandler, disable}) => {
+    const buttonColor = () =>{
+        if(disable){
+            return styles.disabled
+        }else{
+            return styleButton
+        }
+    }
     return(
-        <TouchableOpacity style = {[styles.defaultButton, styleButton]}
+        <TouchableOpacity style = {[styles.defaultButton, buttonColor()]}
         onPress={eventHandler}
+        disabled ={!disable? false: true}
         >
         {/* return button */}
             <Text style = {[styles.defaultText, styleText]}>
-                {textlabel}
+                {capitalizeFirstLetter(textlabel)}
             </Text>
         </TouchableOpacity>
     )
@@ -43,6 +51,9 @@ const styles = StyleSheet.create({
         fontSize: FontSize.size_lg,
         lineHeight: 28,
         fontFamily: FontFamily.interRegular,
+    },
+    disabled:{
+        backgroundColor:Color.colorLightslategray
     }
 })
 

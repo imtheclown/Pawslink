@@ -8,6 +8,7 @@ import { StyleSheet,
     SafeAreaView
 } from "react-native";
 import { Border, Color, FontFamily, FontSize } from "../assets/id_verification/GlobalStyles";
+import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 
 const IdVerification = () =>{
     return (

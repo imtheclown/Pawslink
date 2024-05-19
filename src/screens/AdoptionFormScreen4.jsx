@@ -27,6 +27,16 @@ const AdoptionFormScreen4 = ({route, navigation}) => {
             awarenessSource
         }
     }
+    const goToNext = () => {
+        const naviParams = generateRouteParam()
+        navigation.navigate({
+            name:"ID Verification",
+            params: naviParams
+        })
+    }
+    const returnToPreviousPage = () =>{
+        navigation.goBack()
+    }
     return (
         <SafeAreaView style = {[styles.mainContainer, styles.flexContainer]}>
             {/* contentcontainer */}
@@ -60,11 +70,13 @@ const AdoptionFormScreen4 = ({route, navigation}) => {
                         ]}
                     />
                     <FormButton
+                        eventHandler={goToNext}
                         textlabel={"next"}
                         styleButton={styles.nextButton}
                         styleText={styles.nextText}
                     />
                     <FormButton
+                        eventHandler={returnToPreviousPage}
                         textlabel={"return to previous page"}
                         styleButton={styles.returnButton}
                         styleText={styles.returnText}

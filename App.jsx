@@ -19,6 +19,13 @@ import AdoptionFormScreen1 from "./src/screens/AdoptionFormScreen1";
 import AdoptionFormScreen2 from "./src/screens/AdoptionFormScreen2";
 import AdoptionFormScreen3 from "./src/screens/AdoptionFormScreen3";
 import AdoptionFormScreen4 from "./src/screens/AdoptionFormScreen4";
+import IdVerificationScreen from "./src/screens/IdVerificationScreen";
+import DataPrivacyContentScreen from "./src/screens/DataPrivacyContentScreen";
+import ThankYouForAdoptionScreen from "./src/screens/ThankYouForAdoptionScreen";
+import ViewPostScreen from "./src/screens/ViewPostScreen";
+import NotificationScreen from "./src/screens/NotificationScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+import EditProfileScreen from "./src/screens/EditProfileScreen";
 const AppStack = () =>{
     return(
         <BrowseStack.Navigator>
@@ -93,15 +100,37 @@ const AppStack = () =>{
               headerShown: false
             }}
             />
+            <BrowseStack.Screen
+            name = "ID Verification"
+            component ={IdVerificationScreen}
+            options={{
+              headerShown: false
+            }}
+            />
+            <BrowseStack.Screen
+            name = "Data Privacy Consent"
+            component ={DataPrivacyContentScreen}
+            options={{
+              headerShown: false
+            }}
+            />
+            <BrowseStack.Screen
+            name="Thank You For Adoption"
+            component={ThankYouForAdoptionScreen}
+            options={{
+              headerShown: false
+            }}
+            />
         </BrowseStack.Navigator>
     )
 }
 const App = () => {
   Realm.copyBundledRealmFiles()
   return (
-      <NavigationContainer>
-        <AppStack/>
-      </NavigationContainer>
+      // <NavigationContainer>
+      //   <AppStack/>
+      // </NavigationContainer>
+      <EditProfileScreen/>
   );
 };
 export default App;
