@@ -39,7 +39,8 @@ class AnimalSchema extends Realm.Object{
                 type: 'string'
             },
             status:{
-                type: 'string'
+                type: 'list',
+                objectType: 'string'
             },
             coatColor:{
                 type: 'list',

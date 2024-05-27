@@ -9,6 +9,8 @@ import { View,
 import { Sex } from "../utils/CustomTypes";
 import { Border, Color, FontSize, FontFamily } from "../assets/bottom_tabs/GlobalStyles";
 import { useNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
+import axios from "axios";
 
 // capitalize the first letter of each element
 function capitalizeFirstLetter(string) {
@@ -16,6 +18,7 @@ function capitalizeFirstLetter(string) {
 }
 // returns array
 const capitalizeElements = (charList) =>{
+    console.log(charList)
     const capitalizedStrings = charList.map((element) =>(
         capitalizeFirstLetter(element)
     ))
@@ -25,9 +28,9 @@ const capitalizeElements = (charList) =>{
 // combines the element of the properties of type array and seperate each element with ", "
 // returns array
 const SerializableAnimalInstance = (animalObject) =>{
+    console.log(animalObject);
     const processedTraits = capitalizeElements(animalObject.traitsAndPersonality)
     const processNotes = capitalizeElements(animalObject.notes)
-    const processLocation = capitalizeElements(animalObject.location)
     const processedStatus = capitalizeElements(animalObject.status)
     const processedCoatColor = capitalizeElements(animalObject.coatColor)
     const processedDisabilities = capitalizeElements(animalObject.disabilities)
@@ -35,7 +38,7 @@ const SerializableAnimalInstance = (animalObject) =>{
         _id: animalObject._id.toString(),
         fertilityStatus: animalObject.fertilityStatus,
         mainName: animalObject.mainName,
-        location: processLocation.join(", "),
+        location: animalObject.location,
         sex: animalObject.sex,
         status: processedStatus.join(", "),
         coatColor: processedCoatColor.join(", "),
@@ -63,6 +66,12 @@ function AnimalProfileBox({flatListItem}){
     const gotoView = () =>{
         navigation.navigate("View Animal", {animalObject: animalObject})
     }
+
+    useEffect(() =>{
+        if(flatListItem && flatListItem.imgUrl && flatListItem.imgUrl.length){
+
+        } 
+    },[])
     return(
         <TouchableOpacity style={[styles.animalInstanceBoxContainer]} onPress={gotoView}>
             <View style= {[styles.topContainer]} >

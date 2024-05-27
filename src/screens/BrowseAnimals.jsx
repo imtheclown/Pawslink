@@ -12,71 +12,54 @@ import {useQuery, useRealm } from "@realm/react";
 
 import {FontFamily } from "../assets/browse_animals/GlobalStyles";
 import AnimalProfileBox from "../components/AnimalProfileBox";
-import { RealmProvider } from "@realm/react";
 import Tag from "../components/BrowseAnimalTag";
 import BrowseAnimalSearchBar from "../components/BrowseAnimalSearchBar";
 import LoadingModal from "../components/LoadingModal";
 import { useState, useEffect } from "react";
 import UpdateDateSchema from "../database/schemas/UpdateDate";
 import { fetch } from "@react-native-community/netinfo";
-import { AnimalSchema } from "../database/schemas/Schema";
+import { Animal, AnimalSchema } from "../database/schemas/Schema";
 // custom type
 import { LifeStatus } from "../utils/CustomTypes";
 import axios from "axios";
 import { localMachineIPAddress, port } from "../utils/networkConf";
+import { createRealmContext } from "@realm/react";
+import { Realm } from "realm";
 // returns JSX element wrapped in Realm elements
 // access to database, both local and synced
 
-const updateDateConfig = {
-    schema:[UpdateDateSchema],
-    path:"UpdateDate.realm"
-}
-
-const animalConfig = {
-    schema :[AnimalSchema],
+const UpdateDateContext = createRealmContext({
+    schema: [UpdateDateSchema],
     path:"Animal.realm"
-}
+})
+
+const AnimalContext = createRealmContext({
+    schema: [AnimalSchema],
+    path:"UpdateDate.realm"
+})
+
+const {
+    RealmProvider: UpdateDateProvider,
+    useRealm: useUpdateDateRealm,
+    useQuery: useUpdateDateQuery
+} = UpdateDateContext;
+
+const {
+    RealmProvider: AnimalProvider,
+    useRealm: useAnimalRealm,
+    useQuery: useAnimalQuery
+} = AnimalContext
+
+  
 const BrowseAnimalWrapper = () => {
     return (
-        <RealmProvider
-            schema={[UpdateDateSchema]}
-            path ="UpdateDate.realm"
-        >
-            <BrowseAnimals/>
-        </RealmProvider>
+        <AnimalProvider>
+            <UpdateDateProvider>
+                <BrowseAnimalMainContent/>
+            </UpdateDateProvider>
+        </AnimalProvider>
     )
 }
-
-const BrowseAnimals = () => {
-    const updateDate = useQuery(UpdateDateSchema);
-    const [animalupdates, setAnimalUpdates] = useState([])
-    const realm = useRealm(updateDateConfig);
-    useEffect(() =>{
-        // there is no updates ever since
-        if(!(updateDate.length > 0)){
-            getUpdates();
-        }
-    },[])
-
-    const getUpdates = async () =>{
-        await axios.get(`http://${localMachineIPAddress}:${port}/api/getAdminLog?collectionName=animals`)
-        .then(result =>{
-            if(result && result.data){
-                setAnimalUpdates(result.data)
-            }
-        }).catch(err =>{
-            console.log(err)
-        })
-    }
-    return (
-        <RealmProvider 
-        schema={[AnimalSchema]}
-        path="Animals.realm"
-        >
-            <BrowseAnimalMainContent updates = {animalupdates}/>
-        </RealmProvider>
-    )
-  };
 export default BrowseAnimalWrapper;
 
 // tagnames
@@ -90,14 +73,21 @@ const TagNames = {
 const categories = [TagNames.ALL, TagNames.CAT, TagNames.DOG, TagNames.FOR_ADOPTION]
 
 import { useNavigation } from "@react-navigation/native";
+import { Types } from "realm";
+import { create } from "react-test-renderer";
 
 function BrowseAnimalMainContent(){
     const navigation = useNavigation();
-    const animalQuery = useQuery(AnimalSchema);
-    console.log(animalQuery);
+    const animalQuery = useAnimalQuery(AnimalSchema);
+    const updateDateQuery = useUpdateDateQuery(UpdateDateSchema);
+    const animalRealm = useAnimalRealm();
+    const updateDateRealm = useUpdateDateRealm();
     // create an array from the query as it has type of Result<Animal> which is not equivalent to primitive array
     const animals = Array.from(animalQuery)
     // all animals upon the opening of the up
+
+    const [updating, setUpdating] = useState(false);
+    const[isConnected, setIsconnected] = useState(false);
     const [animalList, setAnimalList] = useState(animals);
     // filter is equivalent to tag names
     // defaults to all, equivalently, the animalList defaults to the whole animalList
@@ -108,17 +98,94 @@ function BrowseAnimalMainContent(){
     const [isLoading, setIsloading] = useState(false);
 
     useEffect(() =>{
-        setIsloading(true);
         updateData(filter);
-        setIsloading(false);
-    }, [filter])
+        checkInternetConnection();
+        if(isConnected){
+            // update everything
+            if(!updating){
+                updateAnimalCollection();
+            }
+        }
+    }, [isConnected, filter])
+
+    const updateAnimalCollection = async() =>{
+        setUpdating(true);
+        var data;
+        if(updateDateQuery.length === 0){
+            data = await getUpdates(`&`);
+        }else{
+            data = await getUpdates(`&startDate=${updateDateQuery[0].lastUpdateId}`);
+        }
+        await updateAsynchronously(data);
+        setUpdating(false);
+    }
+
+    const updateAsynchronously = async (logList) =>{
+        for(var i = 0 ; i < logList.length; i++){
+            const animalData = await axios.get(`http://${localMachineIPAddress}:${port}/api/getanimals?id=${logList[i].documentId}`)
+            .then(result =>{
+                let resultData;
+                if(result && result.data && result.data.data){
+                    resultData = result.data.data;
+                }else{
+                    resultData = result.data;
+                }
+                return resultData;
+            }).catch(err => {
+                console.log(err);
+            })
+            const data = animalData[0];
+            animalRealm.write(() =>{
+                data["_id"] = new Types.ObjectId(data._id); 
+                animalRealm.create(AnimalSchema, data, 'modified');
+            })
+            updateDateRealm.write(() =>{
+                var id;
+                if(updateDateQuery && updateDateQuery[0] && updateDateQuery[0]._id)
+                {
+                    id = new Types.ObjectId(updateDateQuery[0]._id)
+                }else{
+                    id = new Realm.BSON.ObjectId()
+                }
+                updateDateRealm,create(UpdateDateSchema, {
+                    _id: id,
+                    lastUpdateDate: new Date(),
+                    lastUpdateId: new Types.ObjectId(data._id)
+                })
+            })
+        }
+    }
+    const checkInternetConnection = async () =>{
+        await fetch()
+        .then(result =>{
+            if(result.isConnected){
+                setIsconnected(true);
+            }else{
+                setIsconnected(false);
+            }
+        }).catch(err =>{
+            console.log(err);
+            setIsconnected(false);
+        })
+    }
+    const getUpdates = async (dateParams) =>{
+        const updates = await axios.get(`http://${localMachineIPAddress}:${port}/api/getAdminLog?collectionName=animals${dateParams}`)
+        .then(result =>{
+            if(result && result.data){
+                return result.data
+            }
+            return []
+        }).catch(err =>{
+            console.log(err)
+        })
+        return updates;
+    }
     // reacts to the change in category/tags
     // filters the animals to show dependent on the chosen category
     const changeCategory = (newCategory) =>{
         // there is no change in category
         if(newCategory != filter){
             setFilter(newCategory);
-            
         }
     }
     const updateData = (newCategory) => {
