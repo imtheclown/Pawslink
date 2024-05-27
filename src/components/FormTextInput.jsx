@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         fontFamily: FontFamily.interRegular,
         fontSize: FontSize.size_sm,
+        color: "#424856"
     }
 })
 

@@ -12,8 +12,18 @@ import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import FormButton from "../components/FormButton";
 import CheckBox from "@react-native-community/checkbox";
 import { useState } from "react";
-const DataPrivacyContentScreen = ({router, navigation}) =>{
+const DataPrivacyContentScreen = ({route, navigation}) =>{
+    // perform write operation
+    const data = route.params;
     const [agree, setAgree] = useState(false)
+
+    const gotoThanks = () =>{
+        navigation.navigate("Thank You For Adoption");
+    }
+
+    const goBack = () =>{
+        navigation.goBack()
+    }
     return(
         <SafeAreaView style ={[styles.flexContainer, styles.mainContainer]}>
             <View style ={[styles.contentContainer]}>
@@ -38,14 +48,16 @@ const DataPrivacyContentScreen = ({router, navigation}) =>{
                     <Text style ={[styles.checkBoxText]}> I understand and agree to the privacy statement above.</Text>
                 </View>
                 <FormButton
+                eventHandler={gotoThanks}
                 disable={!agree}
                 textlabel={capitalizeFirstLetter("continue")}
                 styleButton={styles.continueButton}
                 />
                 <FormButton
+                eventHandler={goBack}
                 styleButton={styles.cancelButton}
                 textlabel={capitalizeFirstLetter("cancel")}
-                
+                styleText={[styles.cancelButtonText]}
                 />
             </View>
         </SafeAreaView>
@@ -114,6 +126,9 @@ const styles = StyleSheet.create({
     },
     continueButton:{
         backgroundColor: Color.colorPalevioletred
+    },
+    cancelButtonText:{
+        color: Color.colorPalevioletred
     }
 
 })

@@ -1,22 +1,34 @@
 import * as React from "react";
-import { Pressable, 
+import { 
     Text, 
     StyleSheet, 
-    Image, 
     View, 
     SafeAreaView,
     TouchableOpacity,
-    ScrollView
-
+    ScrollView,
+    Modal
 } from "react-native";
 import { Border, Color, FontFamily, FontSize } from "../assets/forum/GlobalStyles";
 import PostContainer from "../components/PostContainer";
 import { useNavigation } from "@react-navigation/native";
+import NeedLoginScreen from "./NeedLogInScreen";
+import LoadingScreen from "./Loading";
+import { useState, useEffect } from "react";
+import { useQuery, useContext } from "@realm/react";
+import { SavedUser } from "../database/schemas/SavedUser";
+import CreatePostScreen from "./CreatePostScreen";
 
 const ForumScreen = () =>{
+    const[create, setCreate] = useState(false);
+    const data = useQuery(ForumEntry);
+    console.log(data);
     const navigation = useNavigation();
-    const NavigateToCreatePost= () => {
+    const gotoCreatePost = () => {
         navigation.navigate("Create Post")
+    }
+
+    const toggleCreate = () =>{
+        setCreate(!create);
     }
     return(
         <SafeAreaView style = {[styles.flexContainer]}>
@@ -34,7 +46,7 @@ const ForumScreen = () =>{
                             </Text>
                         </View>
                         <TouchableOpacity style= {[styles.addPostButton]}
-                            onPress={NavigateToCreatePost}
+                        onPress={gotoCreatePost}
                         >
                             <Text style ={[styles.addPostText]}>
                                 + add a post
@@ -45,14 +57,29 @@ const ForumScreen = () =>{
                 {/* bottom container */}
                 <ScrollView
                 style = {[styles.scrollViewStyle]}>
-                    <PostContainer/>
-                    <PostContainer hasImage={true}/>
+                    {
+                        data.map((post) =>{
+                            return(
+                                <PostContainer
+                                key={post._id}
+                                username={post.username}
+                                content={post.content}
+                                email={post.email}
+                                title={post.title}
+                                commentNum={post.commentNum}
+                                hasImage={post.entryImageURL.length? true: false}
+                                datePosted={post.datePosted}
+                                postImage={post.entryImageURL}
+                                />
+                            )
+
+                        })
+                    }
                 </ScrollView>
             </View>
         </SafeAreaView>
     )
 }
-
 const styles = StyleSheet.create({
     flexContainer: {
         flex: 1,
@@ -132,8 +159,31 @@ const styles = StyleSheet.create({
         height: '80%'
     },
     // post container styles
-    
-
 })
-export default ForumScreen
+
+// imports for the realm wrappers
+
+import {UserProvider, RealmProvider, useRealm } from "@realm/react";
+import { ForumEntry } from "../database/schemas/ForumEntry";
+import { ForumRealmProvider, useForumRealmProvider } from "../database/REALM/realmContext";
+
+const WrappedForumScreen = () => {
+    return (
+      <UserProvider fallback={NeedLoginScreen}>
+        <RealmProvider schema={[ForumEntry]}
+        path="forum.realm" fallback={LoadingScreen}
+        sync={{
+            flexible: true,
+            initialSubscriptions: {
+              update(subs, realm) {
+                subs.add(realm.objects(ForumEntry));
+              },
+            },
+          }}>
+            <ForumScreen/>
+        </RealmProvider>
+      </UserProvider>
+    )
+  }
+export default WrappedForumScreen
 

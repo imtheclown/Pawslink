@@ -22,25 +22,53 @@ class Animal extends Realm.Object{
     }
 }
 
-export {Animal}
+export {Animal, AnimalSchema}
 
-class Animals extends Realm.Object{
+class AnimalSchema extends Realm.Object{
     static schema = {
         name: 'Animals',
         properties: {
             _id: 'objectId',
-            dateGiven: {type: 'date', optional: true},
-            location: { type: 'list', objectType: 'string' },
-            mainName: 'string',
-            sex: { type: 'string', default: Sex.UNDETERMINED }, 
-            status:{ type: 'list', objectType: 'string', default: [LifeStatus.ALIVE] }, 
-            coatColor: { type: 'list', objectType: 'string', default: [] },
-            imgUrl: 'string',
-            notes: { type: 'list', objectType: 'string', default: [] },
-            species: 'string',
-            traitsAndPersonality: { type: 'list', objectType: 'string', default: [] },
-            disabilities: { type: 'list', objectType: 'string', default: [] },
-            age: 'int'
+            location:{
+                type: 'string'
+            },
+            mainName:{
+                type: 'string'
+            },
+            sex: {
+                type: 'string'
+            },
+            status:{
+                type: 'string'
+            },
+            coatColor:{
+                type: 'list',
+                objectType: 'string'
+            },
+            imgUrl:{
+                type: 'string'
+            },
+            notes:{
+                type: 'list',
+                objectType: 'string'
+            },
+            species:{
+                type: 'string'
+            },
+            traitsAndPersonality:{
+                type: 'list',
+                objectType: 'string'
+            },
+            disabilities: {
+                type: 'list',
+                objectType: 'string',
+            },
+            age: {
+                type: 'int'
+            },
+            sterilizationDate:{
+                type: 'date'
+            }
         },
         primaryKey : '_id'
     }

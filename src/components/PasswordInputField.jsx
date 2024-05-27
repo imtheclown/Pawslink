@@ -72,7 +72,8 @@ const styles = StyleSheet.create({
         height: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        color: "#424856"
     },
     sideImage:{
         width: 25,
@@ -80,7 +81,8 @@ const styles = StyleSheet.create({
         marginRight: 5
     },
     passwordCredentialTextInput:{
-        width: '80%'
+        width: '80%',
+        color: "#424856"
     },
     errorText:{
         color: Color.colorRed,

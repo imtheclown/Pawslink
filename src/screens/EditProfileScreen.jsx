@@ -13,7 +13,24 @@ import { Avatar, Accessory } from "@rneui/base";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import EditProfileTextInput from "../components/EditProfileTextInput";
 import FormButton from "../components/FormButton";
-const EditProfileScreen = () => {
+import { pickImage } from "../utils/FileBasedUtils";
+import { useState } from "react";
+const EditProfileScreen = ({route, navigation}) => {
+    const [fileName, setFileName] = useState("");
+    const [uri, setUri] = useState("");
+    const [type, setType] = useState("")
+    const goBack = () =>{
+        navigation.goBack();
+    }
+
+    const onPressPickImage = async () =>{
+        const {uri, name, type, size} = await pickImage();
+        if(uri && name && type){
+            setImageFilename(name)
+            setImageType(type)
+            setImageUri(uri)
+        }
+    }
     return (
         <SafeAreaView style ={[styles.flexContainer, styles.mainContainer]}>
             {/* header */}
@@ -23,7 +40,9 @@ const EditProfileScreen = () => {
                 </Text>
             </View>
             <View>
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={onPressPickImage}
+                >
                     <Avatar
                     size={100}
                     rounded
@@ -63,6 +82,7 @@ const EditProfileScreen = () => {
                 styleButton={styles.cancelButton}
                 styleText={styles.cancelText}
                 textlabel={'cancel'}
+                eventHandler={goBack}
                 />
 
             </View>

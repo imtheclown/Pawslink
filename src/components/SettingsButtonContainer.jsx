@@ -8,9 +8,11 @@ import {
     SafeAreaView
 } from "react-native";
 import { FontFamily, FontSize, Color, Border } from "../assets/profile/GlobalStyles";
-const SettingsButtonContainer = ({label, icon, withEnd}) => {
+const SettingsButtonContainer = ({label, icon, withEnd, eventHandler}) => {
     return (
-        <TouchableOpacity style = {[style.mainContainer]}>
+        <TouchableOpacity style = {[style.mainContainer]}
+            onPress={eventHandler}
+        >
             <View style = {[style.sideImageContainer,style.centerContainer]}>
                 <Image
                 style ={[style.sideImage]}

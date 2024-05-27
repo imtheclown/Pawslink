@@ -11,12 +11,17 @@ import {
 import { Border, Color, FontFamily, FontSize } from "../assets/notification/GlobalStyles";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import NotificationContainer from "../components/NotificationContainer";
-const NotificationScreen = () => {
-    // implement the back button
+const NotificationScreen = ({route, navigation}) => {
+
+    const goBack = () =>{
+        navigation.goBack();
+    }
     return (
         <SafeAreaView style = {[styles.flexContainer,styles.mainContainer]}>
             <View style ={[styles.headerContainer]}>
-                <TouchableOpacity style ={[styles.arrowContainer]}>
+                <TouchableOpacity style ={[styles.arrowContainer]}
+                    onPress={goBack}
+                >
                     <Image
                     style = {[styles.arrowImage]}
                     source={require("../assets/notification/circle-arrow-left-1.png")}
@@ -31,7 +36,7 @@ const NotificationScreen = () => {
             style = {[styles.mainContentContainer]}
             contentContainerStyle = {[styles.centerContainer]}>
                 {/* query notifications here */}
-                <NotificationContainer/>
+                <NotificationContainer notifType={1}/>
             </ScrollView>
         </SafeAreaView>
     )

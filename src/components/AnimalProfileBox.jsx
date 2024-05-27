@@ -1,4 +1,11 @@
-import { View, Pressable, Text, StyleSheet, ImageBackground, Image } from "react-native";
+import { View, 
+    Pressable, 
+    Text, 
+    StyleSheet, 
+    ImageBackground, 
+    Image,
+    TouchableOpacity
+} from "react-native";
 import { Sex } from "../utils/CustomTypes";
 import { Border, Color, FontSize, FontFamily } from "../assets/bottom_tabs/GlobalStyles";
 import { useNavigation } from "@react-navigation/native";
@@ -57,10 +64,10 @@ function AnimalProfileBox({flatListItem}){
         navigation.navigate("View Animal", {animalObject: animalObject})
     }
     return(
-        <Pressable style={[styles.animalInstanceBoxContainer]} onPress={gotoView}>
+        <TouchableOpacity style={[styles.animalInstanceBoxContainer]} onPress={gotoView}>
             <View style= {[styles.topContainer]} >
                 {/* image part */}
-                <ImageBackground
+                <Image
                     style={styles.animalInstanceImage}
                     resizeMode="cover"
                     source={require("../assets/browse_animals/image82.png")}
@@ -68,7 +75,7 @@ function AnimalProfileBox({flatListItem}){
             </View>
             <View style = {[styles.sectionContainer, styles.bottomContainer]}>
                 {/* contains the name, location and gender */}
-                <View style = {[styles.topContainer, styles.bottomLeftContainer]}>
+                <View style = {[ styles.bottomLeftContainer]}>
                     <Text style={styles.instanceBoxNameText}>{mainName}</Text>
                     <View style ={[styles.sectionContainer, styles.bottomContainer]}>
                         <Image
@@ -88,16 +95,15 @@ function AnimalProfileBox({flatListItem}){
                     />
                 </View>
             </View>
-      </Pressable>
+      </TouchableOpacity>
     )
 }
 export default AnimalProfileBox
 
 const styles = StyleSheet.create({
     animalInstanceBoxContainer: {
-        margin: 10,
-        height: 161,
-        width: 160,
+        height: '100%',
+        width: '48%',
         borderRadius: Border.br_5xs,
         elevation: 2,
         shadowRadius: 2,
@@ -108,7 +114,7 @@ const styles = StyleSheet.create({
           height: 3,
         },
         backgroundColor: Color.colorWhite,
-        flexDirection: 'column'
+        flexDirection: 'column',
     },
     instanceBoxNameText: {
         left: 8,
@@ -119,10 +125,9 @@ const styles = StyleSheet.create({
         textAlign: "left",
     },
     animalInstanceImage: {
-        top: 10,
-        left: 9,
-        width: 141,
-        height: 101,
+        width:'90%',
+        height: 140,
+        marginTop: 10
 
     },
     genderIcon: {
@@ -141,15 +146,17 @@ const styles = StyleSheet.create({
         textAlign: "left",
     },
     bottomContainer: {
-        marginHorizontal: 5,
+        margin: 5,
         flexDirection: 'row',
-
     },
     bottomLeftContainer:{
+        flex: 3,
         flexDirection: 'column',
     },
     topContainer: {
-        flex: 3
+        flex: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     locationIcon:{
         width: 12,

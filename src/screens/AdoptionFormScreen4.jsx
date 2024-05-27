@@ -15,17 +15,16 @@ import { capitalizeFirstLetter, splitByDash } from "../utils/TextBasedUtilityFun
 import RadioButton from "../components/RadioButton";
 
 const AdoptionFormScreen4 = ({route, navigation}) => {
+    const data = route.params;
     const [basicNecessities, setBasicNecessities] = useState("")
     const [enrichmentAct, setEnrichmentAct] = useState("")
     const [awarenessSource, setAwarenessSource] = useState("")
 
     const generateRouteParam = () =>{
-        return{
-            ...route.params,
-            basicNecessities,
-            enrichmentAct,
-            awarenessSource
-        }
+        data.append("basicNecessities", basicNecessities);
+        data.append("enrichmentAct", enrichmentAct);
+        data.append('awarenessSource', awarenessSource);
+        return data;
     }
     const goToNext = () => {
         const naviParams = generateRouteParam()

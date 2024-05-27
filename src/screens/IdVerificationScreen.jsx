@@ -4,45 +4,86 @@ import { View,
     StyleSheet,
     Text,
     TouchableOpacity,
-    Image
-} from "react-native";;
-import DocumentPicker, { types } from 'react-native-document-picker';
+    Image,
+    Alert
+} from "react-native";
+
 import { Border, Color, FontFamily, FontSize } from "../assets/forms/GlobalStyles";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import FormButton from "../components/FormButton";
-
-const IMAGE_TYPES =[
-    DocumentPicker.types.images
-]
+import { useState } from "react";
+import { generate32BitHex } from "../utils/TextBasedUtilityFunctions";
+import { localMachineIPAddress } from "../utils/networkConf";
+import { pickImage } from "../utils/FileBasedUtils";
+import axios from "axios";
+import RNFS from "react-native-fs"
 const IdVerificationScreen = ({route, navigation}) => {
-    const pickDocument = async () => {
-        try {
-          const result = await DocumentPicker.pick({
-            // allowMultiSelection: false,
-            type: IMAGE_TYPES,
-          });
-          if (result) {
-            console.log('Picked document:0', result);
-            const { name, size, type, uri } = result[0];
-            return {
-                name,
-                type,
-                uri,
-                size,
-              };
-            }
-        } catch (err) {
-          if (DocumentPicker.isCancel(err)) {
-            // User cancelled the document picker
-            console.log('Document picker cancelled by user');
-          } else {
-            // Handle other errors
-            console.log('Error picking document:', err);
-          }
-          return null;
+    const data = route.params;
+    const attachFile = "attach file";
+    const availableFormat = "supported format: PNG, JPG";
+    const [uri, setUri] = useState("");
+    const [filename, setFilename] = useState("");
+    const [type, setType] = useState("");
+    const [isLoading, setIsLoading] = useState(true)
+    const onPressPickDocument = async () =>{
+        const {name, type, uri, size} = await pickImage()
+        if(name ||type ||uri){
+            setFilename(name);
+            setType(type);
+            setUri(uri);
         }
-    };
-     return (
+    }
+    const deselectImage = () => {
+        setUri("");
+        setFilename("");
+        setType("");
+    }
+    const uploadImage = async () =>{
+        const data = new FormData();
+        data.append('image', {
+            uri,
+            name: filename,
+            type
+        })
+        const key = generate32BitHex();
+        data.append('key', key)
+        await axios.post(`http://${localMachineIPAddress}:3030/api/uploadSingleImage`,
+            data,
+            {
+                headers:{
+                    Accept: 'Application/json',
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        ).then(response =>{
+            console.log(response)
+        }).catch(err => {
+            console.log(err)
+        })
+
+    }
+
+    const goBack = () => {
+        navigation.goBack();
+    }
+
+    const generateRouteParams = () => {
+        data.append('image', {
+            uri,
+            name: filename,
+            type
+        })
+
+        return data
+    }
+    const gotoDataPrivacy = () =>{
+        const naviParams = generateRouteParams()
+        navigation.navigate({
+            name: "Data Privacy Consent",
+            params: naviParams
+        });
+    }
+    return (
         <SafeAreaView style = {[styles.mainContainer, styles.flexContainer]}>
         {/* contentcontainer */}
         <View style = {[styles.header, styles.centeredContainer]}>
@@ -65,7 +106,7 @@ const IdVerificationScreen = ({route, navigation}) => {
                                 <Text style ={[styles.idVerTopContainerText]}>
                                 id photo
                                 </Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={deselectImage}>
                                     <Image
                                     style ={[styles.removeButton]}
                                     resizeMode="cover"
@@ -75,32 +116,26 @@ const IdVerificationScreen = ({route, navigation}) => {
                         </View>
                         {/* mid view */}
                         <TouchableOpacity style ={[styles.flexContainer, styles.idVertMidContainer]}
-                            onPress={pickDocument}
+                            onPress={onPressPickDocument}
                         >
                                 <Text style ={[styles.idVerTopContainerText]}>
-                                    {capitalizeFirstLetter("attach file")}
+                                    {filename.length > 0 ? capitalizeFirstLetter(filename): capitalizeFirstLetter("attach file")}
                                 </Text>
                                 <Text style ={[styles.supportedFormatText]}>
-                                    {capitalizeFirstLetter("supported format: PNG, JPG")}
+                                    {type.length > 0? capitalizeFirstLetter(type): capitalizeFirstLetter("supported format: PNG, JPG")}
                                 </Text>
                         </TouchableOpacity>
                         {/* bot view */}
-                        <View style ={[styles.flexContainer, styles.idVertBottomContainer]}>
-                            <TouchableOpacity style ={[styles.idVertButton]}>
-                                <Text style ={[styles.idVerButtonText, styles.idVerCancelText]}>{capitalizeFirstLetter("cancel")}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style ={[styles.idVertButton, styles.idverUploadButton]}>
-                                <Text style ={[styles.idVerButtonText, styles.idVerUploadText]}>{capitalizeFirstLetter("upload")}</Text>
-                            </TouchableOpacity>
-                        </View>
                     </View>
                 </View>
                 <FormButton
+                    eventHandler={gotoDataPrivacy}
                     textlabel={"next"}
                     styleButton={styles.nextButton}
                     styleText={styles.nextText}
                 />
                 <FormButton
+                    eventHandler={goBack}
                     textlabel={"return to previous page"}
                     styleButton={styles.returnButton}
                     styleText={styles.returnText}
@@ -117,7 +152,8 @@ const styles = StyleSheet.create({
     },
     centeredContainer:{
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: Color.colorWhite,
     },
     mainContainer: {
         justifyContent: 'center',

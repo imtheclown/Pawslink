@@ -2,25 +2,48 @@ import * as React from "react";
 import {
   Image,
   StyleSheet,
-  ImageBackground,
   Text,
   View,
-  Pressable,
   SafeAreaView, 
   TouchableOpacity
 } from "react-native";
 import { LinearProgress } from "@rneui/themed";
 import { Color, FontFamily, FontSize } from "../assets/landing_page/GlobalStyles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import NetInfo, {fetch} from '@react-native-community/netinfo';
 
 const LandingPageScreen = () =>{
     const [isLoading, setIsloading] = useState(false)
-    const navigation = useNavigation()
+    const [connected, setConnected] = useState(false);
+    const [percent, setPercent] = useState("0");
+    const navigation = useNavigation();
 
-    const GotoHome = () => {
-        navigation.navigate("Home")
+    useEffect(() =>{
+        setIsloading(true);
+        checkInternetConnection();
+        setPercent(String(((parseInt(percent) + 1)/1)) * 100);
+        setIsloading(false);
+    },[])
+
+    const checkInternetConnection = async () =>{
+        await fetch()
+        .then(result =>{
+            if(result.isConnected){
+                
+                setConnected(true);
+            }else{
+                setConnected(false);
+            }
+        }).catch(err =>{
+            console.log(err);
+            setConnected(false);
+        })
     }
+    const GotoHome = () => {
+        navigation.navigate("Home");
+    }
+
     return (
         <SafeAreaView style = {[styles.flexContainer, styles.mainContainer]}>
             <View style = {[styles.contentContainer]}>
@@ -34,7 +57,7 @@ const LandingPageScreen = () =>{
                     <Text style = {[styles.inPartnerShipText]}>
                         in partnership with
                     </Text>
-                    </View>
+                </View>
                 {/* partner logo container */}
                 <View style = {[styles.flexContainer, styles.logoContainer]}>
                     <Image
@@ -57,7 +80,7 @@ const LandingPageScreen = () =>{
 
                 {isLoading? 
                     <View style = {[styles.loadingSliderContainer]}>
-                        <Text style={[styles.percentageText]}>75%</Text>
+                        <Text style={[styles.percentageText]}>{`${percent}%`}</Text>
                         <LinearProgress
                             style={styles.loadingSlider}
                             animation={true}
@@ -103,7 +126,7 @@ const styles = StyleSheet.create({
     },
     contentContainer:{
         width: '80%',
-        height: '60%',
+        height: '70%',
     },
     pawsLinkLogoContainer: {
         justifyContent: 'center',

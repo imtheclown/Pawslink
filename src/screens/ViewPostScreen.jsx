@@ -15,7 +15,7 @@ import ViewPostContainer from "../components/ViewPostContainer";
 import { getMonth } from "../utils/DateBasedUtilityFunctions";
 import ReplyContainer from "../components/ReplyContainer";
 import { useState } from "react";
-const ViewPostScreen = () => {
+const ViewPostScreen = ({route, navigation}) => {
   const [replyText, setReplyText] = useState("")
   const [image, setImage] = useState(null)
 
@@ -35,11 +35,17 @@ const ViewPostScreen = () => {
     contentText : `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed doeiusmod...`,
     imageLinkList : "../assets/view_post/image-110.png"
   }
+
+  const goBack = () => {
+    navigation.goBack();
+  }
   return(
     <SafeAreaView style ={[styles.flexContainer,styles.mainContainer, styles.centerContainer]}>
       {/* header */}
       <View style ={[styles.topContainer]}>
-        <TouchableOpacity>
+        <TouchableOpacity
+        onPress={goBack}
+        >
         <Image
           style = {[styles.returnButton]}
           resizeMode="cover"

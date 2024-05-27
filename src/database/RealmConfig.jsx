@@ -1,3 +1,12 @@
 let APP_ID = 'pawslink_v1-jypuh';
 
-export {APP_ID}
+const realmAccessBehavior = {
+    type: 'downloadBeforeOpen',
+    timeOutBehavior: 'openLocalRealm',
+    timeOut: 1000,
+  };
+
+export {
+    APP_ID,
+    realmAccessBehavior
+}

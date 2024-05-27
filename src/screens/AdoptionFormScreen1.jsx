@@ -24,18 +24,20 @@ const AdoptionFormScreen1 = ({route, navigation}) =>{
     const [completeHomeAddress, setCompleteHomeAdd] = useState("")
     const [currentHomeAddress, setCurrentHomeAdd] = useState("")
 
+    const data = new FormData()
     const generateCurrentFormDataObject = () =>{
-        return({
-            firstName,
-            lastName,
-            age,
-            isStudent,
-            contactNumber,
-            emailAdd,
-            faceBookLink,
-            completeHomeAddress,
-            currentHomeAddress
-        })
+
+        data.append('firstname', firstName);
+        data.append('lastname', lastName);
+        data.append('age', age);
+        data.append('isStudent', isStudent);
+        data.append('contactNumber', contactNumber);
+        data.append('emailAdd', emailAdd);
+        data.append('faceBookLink', faceBookLink);
+        data.append('completeHomeAdd', completeHomeAddress);
+        data.append('currentHomeAdd', currentHomeAddress);
+
+        return data
     }
     const gotoNext = () =>{
         // generate params here
@@ -89,6 +91,7 @@ const AdoptionFormScreen1 = ({route, navigation}) =>{
                         <View style = {[styles.checkBoxContainer]}>
                             <View style = {[styles.indivCheckBoxContainer]}>
                                 <CheckBox
+                                tintColors={{true: Color.colorPalevioletred}}
                                 onValueChange={() =>{
                                     setIsStudent(true)
                                 }}
@@ -97,6 +100,7 @@ const AdoptionFormScreen1 = ({route, navigation}) =>{
                             </View>
                             <View style = {[styles.indivCheckBoxContainer]}>
                                 <CheckBox
+                                    tintColors={{true: Color.colorPalevioletred}}
                                     onValueChange={() =>{
                                         setIsStudent(false)
                                     }}

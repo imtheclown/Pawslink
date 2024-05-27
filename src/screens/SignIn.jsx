@@ -5,19 +5,109 @@ import { KeyboardAvoidingView,
     View, 
     Text,
     TouchableOpacity,
-    Pressable
+    Pressable,
+    Keyboard
  } from "react-native";
 import { useState } from "react";
-import { AppProvider, UserProvider } from "@realm/react";
+import { AppProvider, UserProvider, useRealm } from "@realm/react";
 
 import CredentialInputTextBox from "../components/CredentialTextInput";
 import PasswordInputField from "../components/PasswordInputField";
 import { FontSize, FontFamily, Color } from "../assets/sign_in/GlobalStyles";
 import { APP_ID } from "../database/RealmConfig";
+import { useEmailPasswordAuth, AuthOperationName } from "@realm/react";
+
+import axios from "axios";
+import { localMachineIPAddress, apiStartString, port } from "../utils/networkConf";
+import LoadingModal from "../components/LoadingModal";
+import { useEffect } from "react";
+
 
 const SignInScreen = () =>{
-    const [userName, setUsername] = useState("")
-    const [password, setPassword] = useState("")
+    const navigation = useNavigation()
+    const realm = useRealm();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [passError, setPassError] = useState("");
+    const [isLoading, setIsLoading] = useState(false)
+    const {logIn, result} = useEmailPasswordAuth();
+
+    useEffect(()=>{
+        if(result.success){
+            navigation.navigate("Home")
+        }
+    },[])
+    // find accounts in registered email
+    const findEmail =  async () => {
+        const result = await axios.get(`http://${localMachineIPAddress}:${port}/${apiStartString}/findUser?email=${email}`)
+        .then(result => {
+            return result.data
+        }).catch(err =>{
+            console.log(err)
+            return null
+        })
+        return result
+    }
+    
+
+    const onPressLogin = async() =>{
+        Keyboard.dismiss();
+        setIsLoading(true)
+        if(email.length && password.length){
+            await findEmail()
+            .then(result => {
+                console.log(result);
+                setErrorMessage("");
+                if(result && result.data){
+                    const data =result.data;
+                    if(data.length){
+                        // check password
+                        const instance = data[0]
+                        const resultPass = instance.realmPassword
+                        if(resultPass === password){
+                            // realm login
+                            logIn({
+                                email,
+                                password
+                            })
+                            realm.write(() =>{
+
+                                realm.create(SavedUser,{
+                                    username: instance.userName,
+                                    email: instance.email,
+                                    appPassword: instance.appPassword,
+                                    realmPassword: instance.realmPassword,
+                                    remembered: true
+                                },'modified');
+                            });
+                            return
+                        }else{
+                            setErrorMessage("email or password is incorrect")
+                        }
+                    }else{
+                        setErrorMessage("email does not exist, create an account")
+                    }
+                }else{
+                    throw new Error
+                }
+            })
+            .catch(err =>{
+                console.log(err)
+                setErrorMessage("something went wrong")
+            })
+        }else{
+            if(!(email.length)){
+                setEmailError("required")
+            }
+            if(!(password.length)){
+                setPassError("required")
+            }
+        }
+        setIsLoading(false)
+
+    }
     return(
         <SafeAreaView style = {[styles.flexContainer]}>
         <KeyboardAvoidingView style = {[styles.flexContainer]}>
@@ -34,21 +124,24 @@ const SignInScreen = () =>{
             {/* mid view */}
             <View style = {[styles.flexContainer, styles.midView]}>
                 <CredentialInputTextBox 
-                name={"username"}
+                errorMessage = {errorMessage.length ? errorMessage: ""}
+                name={"email"}
                 imageAsset={require('../assets/sign_up/user.png')}
-                value={userName}
-                setValue={setUsername}
-                isError={false}
-                errorMessage={""}/>
+                value={email}
+                setValue={setEmail}
+                isError={emailError.length? true: false}
+                isEmail={true}/>
                 <PasswordInputField
                 name={"password"}
                 imageAsset={require("../assets/sign_up/password.png")}
                 value={password}
                 setValue={setPassword}
-                isError={false}
-                errorMessage={""}
+                isError={passError.length? true: false}
+                errorMessage={passError.length? passError: ""}
                 />
-                <TouchableOpacity style = {[styles.logInButton]}>
+                <TouchableOpacity style = {[styles.logInButton]}
+                    onPress={onPressLogin}
+                >
                     <Text style={[styles.loginText]}>login</Text>
                 </TouchableOpacity>
                 <TouchableOpacity>
@@ -63,7 +156,7 @@ const SignInScreen = () =>{
             <View style = {[styles.flexContainer, styles.bottomView]}>
                 <View style = {[styles.bottomSubContainer]}>
                     <View>
-                        <Text>Error Message</Text>
+                        <Text style = {[styles.errorMessageText]}>{errorMessage.length? errorMessage: ""}</Text>
                     </View>
                     <TouchableOpacity>
                     <Text style = {[styles.dontHaveAccountText]}>dont have an account? sign up</Text>
@@ -93,6 +186,7 @@ const SignInScreen = () =>{
                 </View>
             </View>
         </KeyboardAvoidingView>
+        <LoadingModal isLoading={isLoading}/>
     </SafeAreaView>
     )
 }
@@ -188,7 +282,29 @@ const styles = StyleSheet.create({
         fontFamily: FontFamily.interLight,
         color: Color.colorPlum,
         lineHeight: 24
+    },
+    errorMessageText:{
+        color: "red",
+        lineHeight: 21,
+        fontSize: FontSize.size_xs,
+        textAlign: "left",
+        fontFamily: FontFamily.interRegular
     }
 })
 
-export default SignInScreen
+import { RealmProvider } from "@realm/react";
+import { SavedUser } from "../database/schemas/SavedUser";
+import { useNavigation } from "@react-navigation/native";
+
+const WrappedLoginScreen = () =>{
+    return(
+        <RealmProvider
+            schema={[SavedUser]}
+            path="SavedUser.realm"
+        >
+            <SignInScreen/>
+        </RealmProvider>
+    )
+}
+
+export default WrappedLoginScreen

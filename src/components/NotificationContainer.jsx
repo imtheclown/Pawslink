@@ -10,10 +10,19 @@ import {
 } from "react-native";
 import { Border, Color, FontFamily, FontSize } from "../assets/notification/GlobalStyles";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
+import { useNavigation } from "@react-navigation/native";
 
 const NotificationContainer = ({content, notifType}) =>{
+    const navigation = useNavigation();
+    const gotoMonthlyUpdate = () =>{
+        if(notifType === 1){
+            navigation.navigate("Monthly Update")
+        }
+    }
     return(
-        <TouchableOpacity style ={[styles.mainContainer]}>
+        <TouchableOpacity style ={[styles.mainContainer]}
+            onPress={gotoMonthlyUpdate}
+        >
             {/* image here */}
             <View style ={[styles.flexContainer,styles.centerContainer]}>
                 <Image

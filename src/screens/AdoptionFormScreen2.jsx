@@ -15,6 +15,7 @@ import RadioButton from "../components/RadioButton";
 import { splitByDash } from "../utils/TextBasedUtilityFunctions";
 
 const AdoptionFormScreen2 = ({route, navigation}) =>{
+    const data = route.params
     const [currentPets, setCurrentPets] = useState("0")
     const [petOwnershipDuration, setPetOwnershipDuration] = useState("0")
     const [oldestLivingPetAge, setOldestLivingPetAge] = useState("0")
@@ -23,15 +24,13 @@ const AdoptionFormScreen2 = ({route, navigation}) =>{
     const [vetClinic, setVetClinic] = useState("")
 
     const generateRouteParams = () =>{
-        return{
-            ...route.params,
-            currentPets,
-            petOwnershipDuration,
-            oldestLivingPetAge,
-            sterilizationAwareness,
-            willToSterilize,
-            vetClinic
-        } 
+        data.append('currentPetNum', currentPets);
+        data.append('petOwnershipDuration', petOwnershipDuration);
+        data.append('oldestLivingPetAge', oldestLivingPetAge);
+        data.append('sterilizationAwareness', sterilizationAwareness);
+        data.append('willToSterilize', willToSterilize);
+        data.append('vetClinic', vetClinic);
+        return data;
     }
 
     const goToNext = () =>{

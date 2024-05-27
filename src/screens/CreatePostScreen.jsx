@@ -11,14 +11,104 @@ import { SafeAreaView,
 } from "react-native"
 import { useNavigation } from "@react-navigation/native";
 import { FontSize, FontFamily, Border, Color } from "../assets/create_post/GlobalStyles";
-const CreatePostScreen = () =>{
-    const navigation = useNavigation();
+import { useState } from "react";
+import { pickImage } from "../utils/FileBasedUtils";
+import { useForumRealmProvider } from "../database/REALM/realmContext";
+import axios from "axios";
+import { generate32BitHex } from "../utils/TextBasedUtilityFunctions";
+import { localMachineIPAddress, port, apiStartString } from "../utils/networkConf";
+import { Realm, useQuery, useRealm } from "@realm/react";
+import { SavedUser } from "../database/schemas/SavedUser";
+import LoadingModal from "../components/LoadingModal";
+const CreatePostScreen = ({route, navigation}) =>{
+    const query = useQuery(SavedUser);
+    const attachFile = 'attach file';
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [imageUri, setImageUri] = useState("");
+    const [imageFilename, setImageFilename] = useState("");
+    const [imageType, setImageType] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const GoBackToPreviousScreen = () =>{
         navigation.goBack()
+    }
+
+    const getuserCreds = () =>{
+        for(const i= 0; i < query.length; i ++){
+            if(query[i].remembered){
+                return {username, email} = query[0]
+            }
+        }
+        
+        
+    }
+    const createPost = async (data) => {
+        setIsLoading(true);
+        await axios.post(`http://${localMachineIPAddress}:${port}/${apiStartString}/createPost`,
+        data,
+        {
+            headers:{
+                Accept: 'Application/json',
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+    }
+
+    const createPostHandler = () =>{
+        const {username, email} = getuserCreds();
+        console.log(content, title)
+        if(content.length && title.length){
+            const data = new FormData()
+            if(imageUri.length){
+                key = generate32BitHex()
+                data.append('image', {
+                    uri: imageUri,
+                    name: imageFilename,
+                    type: imageType
+                })
+                data.append('key', key)
+            }
+            data.append("title", title);
+            data.append("content", content);
+            data.append("username", username);
+            data.append("email", email);
+            createPost(data)
+            .then(
+                result =>{
+                    setIsLoading(false)
+                    navigation.goBack();
+                }
+                
+            )
+            .catch(
+                err =>{
+                    setIsLoading(false);
+                    console.log(err);
+                }
+            )
+        }
+    }
+    const onPressPickImage = async () =>{
+        const {uri, name, type, size} = await pickImage();
+        if(uri && name && type){
+            setImageFilename(name)
+            setImageType(type)
+            setImageUri(uri)
+        }
+    }
+
+    const updateTitle = (newtitle) =>{
+        setTitle(newtitle);
+    }
+
+    const updatedContent = (updateContent) =>{
+        setContent(updateContent);
     }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView style = {[styles.flexContainer, styles.mainContainer]}>
+                <LoadingModal isLoading={isLoading}/>
             {/* header */}
             <View style = {[styles.headerContainer]}>
                 <Text style = {[styles.createPostText]}>
@@ -31,6 +121,7 @@ const CreatePostScreen = () =>{
                     style = {[styles.createPostTextInput]}
                     placeholder="Add a title..."
                     placeholderTextColor="#9095a1"
+                    onChangeText={updateTitle}
                 />
                 <TextInput
                 numberOfLines={6}
@@ -40,21 +131,26 @@ const CreatePostScreen = () =>{
                 placeholder="Write text here..."
                 placeholderTextColor="#9095a1"
                 returnKeyType="done"
+                onChangeText={updatedContent}
                 />
                 <View>
-                    <TouchableOpacity style={[styles.attachFileButton]}>
+                    <TouchableOpacity style={[styles.attachFileButton]}
+                        onPress={onPressPickImage}
+                    >
                         <Image
                         style={[styles.attachmentIcon]}
                         resizeMode="cover"
                         source={require("../assets/create_post/attachment.png")}
                         />
-                        <Text style={[styles.attachButtonText]}>attach file</Text>
+                        <Text style={[styles.attachButtonText]}>{imageFilename.length? imageFilename: attachFile}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             {/* buttons */}
             <View style = {[styles.buttonContainer]}>
-                <TouchableOpacity style={[styles.postButton]}>
+                <TouchableOpacity style={[styles.postButton]}
+                    onPress={createPostHandler}
+                >
                     <Text style = {[styles.postButtonText]}>post</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style = {[styles.cancelButton]}
@@ -73,7 +169,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     mainContainer:{
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: Color.colorWhite,
     },
     headerContainer:{
         width: '90%',
@@ -101,7 +198,7 @@ const styles = StyleSheet.create({
         width: '100%',
         elevation: 2,
         shadowRadius: 2,
-        shadowColor: "rgba(23, 26, 31, 0.12)",
+        shadowColor: "rgba(23, 26, 31, 1)",
         borderRadius: Border.br_9xs,
         fontWeight: "700",
         shadowOpacity: 1,
@@ -110,14 +207,15 @@ const styles = StyleSheet.create({
           height: 3,
         },
         backgroundColor: Color.colorWhite,
-        marginBottom: 10
+        marginBottom: 10,
+        color: 'black'
     },
     createContentTextInput:{
         width: '100%',
         borderRadius: Border.br_9xs,
         elevation: 2,
         shadowRadius: 2,
-        shadowColor: "rgba(23, 26, 31, 0.12)",
+        shadowColor: "rgba(23, 26, 31, 1)",
         shadowOpacity: 1,
         shadowOffset: {
           width: 0,
@@ -126,7 +224,8 @@ const styles = StyleSheet.create({
         backgroundColor: Color.colorWhite,
         fontFamily: FontFamily.interRegular,
         paddingBottom: 20,
-        fontSize: 25
+        fontSize: 25,
+        color: 'black'
     },
     attachFileButton:{
         flexDirection: 'row',
@@ -160,7 +259,7 @@ const styles = StyleSheet.create({
         backgroundColor: Color.colorPalevioletred,
         elevation: 2,
         shadowRadius: 2,
-        shadowColor: "rgba(23, 26, 31, 0.12)",
+        shadowColor: "rgba(23, 26, 31, 1)",
         shadowOpacity: 1,
         shadowOffset: {
           width: 0,
@@ -195,4 +294,16 @@ const styles = StyleSheet.create({
     }
 })
 
-export default CreatePostScreen
+import { RealmProvider } from "@realm/react";
+import { FaceDetector } from "react-native-camera";
+const WrappedCreatePost = ({route, navigation}) =>{
+    return(
+        <RealmProvider
+        schema={[SavedUser]}
+        path="SavedUser.realm"
+        >
+            <CreatePostScreen route={route} navigation = {navigation}/>
+        </RealmProvider>
+    )
+}
+export default WrappedCreatePost

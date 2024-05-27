@@ -5,16 +5,19 @@ View,
 StyleSheet, 
 Image, 
 Text, 
-TextInput, 
-Pressable,
-TouchableOpacity} from "react-native";
+TouchableOpacity,
+Alert
+} from "react-native"
+import axios from "axios"
 import { FontFamily, Color, Border, FontSize } from "../assets/sign_up/GlobalStyles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CheckBox from '@react-native-community/checkbox';
-import { AppProvider, UserProvider } from "@realm/react";
-
 import CredentialInputTextBox from "../components/CredentialTextInput";
 import PasswordInputField from "../components/PasswordInputField";
+import { generateConfirmationCode } from "../utils/RandomizerUtils";
+import { localMachineIPAddress, port } from "../utils/networkConf";
+import LoadingModal from "../components/LoadingModal";
+import { useNavigation } from "@react-navigation/native";
 
 // regular expression for the user name, password and email
 const userNameRegEx = /^[a-zA-Z0-9]{8,}$/
@@ -22,6 +25,7 @@ const emailRegEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*.]).{8,}$/
 
 const SignUp = () => {
+    const navigation = useNavigation();
     const [isChecked, setIsChecked] = useState(false);
     const [userName, setUsername] = useState("")
     const [email, setEmail] = useState("")
@@ -31,6 +35,7 @@ const SignUp = () => {
     const [emailError, setEmailError] = useState(false)
     const [passError, setPassError] = useState(false)
     const [confPassErr, setConfPassError] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
 
     const checkUserName = () => {
         if(userNameRegEx.test(userName)){
@@ -60,20 +65,54 @@ const SignUp = () => {
             setConfPassError(false)
         }
     }
-    const SubmitRegistration = () =>{
+
+    const generateUserObject = () => {
+        return {
+            userName,
+            email,
+            password
+        }
+    }
+    const SubmitRegistration = async () =>{
         checkUserName();
         checkEmail();
         checkPass();
         checkConfirmPass();
+        if(!(userNameError || emailError || passError || confPassErr) && isChecked){
+            setIsLoading(true);
+            // send confirmation code
+            const confirmationNumber = generateConfirmationCode();
+            const userObject = generateUserObject();
+            await axios.post(
+                `http://${localMachineIPAddress}:${port}/api/sendEmail`,
+                {
+                    emailAdd: email,
+                    confirmationNumber
+                }
+            ).then(response => {
+                console.log(response)
+                setIsLoading(false);
+                navigation.navigate("Enter Code Screen",{confirmationNumber, userObject} )
+            }).catch(err => {
+                console.log(err)
+                setIsLoading(false);
+                return(
+                    Alert.alert('Failed to SEND EMAIL', 'check internet connection', [
+                        {text: 'OK', onPress: () => console.log('OK Pressed')},
+                      ])
+                )
+            })
+        }
     }
-    
-
     const ToggleAgreementCheckBox = () => {
         setIsChecked(!isChecked)
     }
     return (
         <SafeAreaView style = {[styles.flexContainer]}>
             <KeyboardAvoidingView style = {[styles.flexContainer]} enabled = {false}>
+                <LoadingModal
+                isLoading={isLoading}
+                />
                 <View style={styles.flexContainer}>
                     {/* logo */}
                         <View style = {[styles.topView]}>
@@ -126,6 +165,7 @@ const SignUp = () => {
                         {/* checkbox and the link for the terms and condition */}
                         <View style={[styles.bottomViewContainer]}>
                             <CheckBox
+                                tintColors={{true:Color.colorPlum}}
                                 disabled={false}
                                 value={isChecked}
                                 onValueChange={ToggleAgreementCheckBox}
@@ -214,6 +254,7 @@ const styles = StyleSheet.create({
         textDecorationLine: "underline",
     },
     signUpButton:{
+        marginTop: 30,
         borderRadius: 31,
         backgroundColor: "#9032ab",
         width: 303,

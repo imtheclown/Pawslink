@@ -2,23 +2,15 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { fetch } from "@react-native-community/netinfo";
 
-import BrowseAnimals from "../screens/BrowseAnimals";
+import BrowseAnimalWrapper from "../screens/BrowseAnimals";
 import AnimalQRCodeScanner from "../screens/AnimalQRCodeScanner";
 import { ConnectionContext } from "./ConnectionContext";
-import ForumScreen from "../screens/ForumScreen";
 import NeedLoginScreen from "../screens/NeedLogInScreen";
 import EventsScreen from "../screens/EventsScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
-// filler tab
-const SampleTabs = () =>{
-    return (
-      <View>
-        <Text>
-          Sample
-        </Text>
-      </View>
-    )
-}
+// tab screens
+import WrappedForumScreen from "../screens/ForumScreen";
 // one time check if device has internet connection
 const internetConnectivity = async () =>{
   const connection = await fetch().then(state => {
@@ -55,7 +47,7 @@ const BottomTabs = () =>{
       >
         <Tab.Screen
           name="Browse Animals"
-          component={BrowseAnimals}
+          component={BrowseAnimalWrapper}
           options={{
             headerShown: false,
             tabBarIcon: ({focused}) => (
@@ -119,7 +111,9 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Forums"
-          component={ForumScreen}
+          component={
+            WrappedForumScreen
+          }
           options={{
             headerShown: false,
             tabBarIcon: ({focused}) => (
@@ -138,7 +132,7 @@ const BottomTabs = () =>{
         />
         <Tab.Screen
           name="Profile"
-          component={NeedLoginScreen}
+          component={ProfileScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({focused}) => (

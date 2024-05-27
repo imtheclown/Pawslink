@@ -12,8 +12,22 @@ import FormButton from "../components/FormButton";
 import { Avatar } from "@rneui/base";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import SettingsButtonContainer from "../components/SettingsButtonContainer";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileScreen = () => {
+    const navigation = useNavigation();
+
+    const gotoEditProfile = () =>{
+        navigation.navigate("Edit Profile")
+    }
+
+    const gotoVerifyUser = () =>{
+        navigation.navigate('Adoption Form 1')
+    }
+
+    const gotoNotifications = () =>{
+        navigation.navigate("Notification");
+    }
     return (
         <SafeAreaView style = {[styles.flexContainer, styles.mainContainer, styles.centerContainer]}>
             {/* Top container */}
@@ -40,6 +54,7 @@ const ProfileScreen = () => {
                     </View>
                 </View>
                 <FormButton
+                eventHandler={gotoEditProfile}
                 textlabel={`edit profile`}
                 styleText={styles.editProfileText}
                 styleButton={styles.editProfileButton}
@@ -49,11 +64,13 @@ const ProfileScreen = () => {
             <View style = {[styles.middleContainer]}> 
 
                 <SettingsButtonContainer
+                eventHandler={gotoNotifications}
                 label={capitalizeFirstLetter(`notifications`)}
                 icon={require("../assets/profile/circle-09-3.png")}
                 />
 
                 <SettingsButtonContainer
+                eventHandler = {gotoVerifyUser}
                 label={capitalizeFirstLetter(`verify profile for adoption`)}
                 icon={require("../assets/profile/settings-gear-1.png")}
                 />

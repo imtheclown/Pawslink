@@ -1,6 +1,6 @@
 import { StyleSheet, View, Image, Text, TextInput,  } from "react-native"
 import { FontFamily, Color, Border, FontSize } from "../assets/sign_up/GlobalStyles";
-const CredentialInputTextBox = ({imageAsset, name, setValue, isError, errorMessage, value}) => {
+const CredentialInputTextBox = ({imageAsset, name, setValue, isError, errorMessage, value, isEmail}) => {
     const normalTextFieldStyle = [styles.credentialBoxContainer]
     const errorTextFieldStyle = [styles.credentialBoxContainer, styles.errorBorder]
     return (
@@ -18,6 +18,7 @@ const CredentialInputTextBox = ({imageAsset, name, setValue, isError, errorMessa
                     secureTextEntry={false}
                     value={value}
                     onChangeText={text => {setValue(text)}}
+                    keyboardType= {isEmail? "email-address": 'default'}
                     />
                 </View>
             </View>
@@ -69,7 +70,8 @@ const styles = StyleSheet.create({
         marginRight: 5
     },
     credentialBoxTextInput:{
-        width: '90%'
+        width: '90%',
+        color: "#424856"
     },
     passwordCredentialTextInput:{
         width: '80%'

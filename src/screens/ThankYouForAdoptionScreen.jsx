@@ -10,7 +10,11 @@ import { FontFamily, Color } from "../assets/thanks_for_adoption/GlobalStyles";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import FormButton from "../components/FormButton";
 
-const ThankYouForAdoptionScreen = () =>{
+const ThankYouForAdoptionScreen = ({route, navigation}) =>{
+
+    const gotoHome = () =>{
+        navigation.navigate("Home");
+    }
     return (
         <SafeAreaView style = {[styles.flexContainer, styles.mainContainer, styles.centerContainer]}>
             <View style ={[styles.topContainer, styles.centerContainer]}>
@@ -30,6 +34,7 @@ const ThankYouForAdoptionScreen = () =>{
                     {capitalizeFirstLetter("thank you for your interest in adopting! you'll hear back from us soon.")}
                 </Text>
                 <FormButton
+                eventHandler={gotoHome}
                 textlabel={`back to home`}
                 styleButton={styles.returToHomeButton}
                 styleText={styles.returnToHomeText}

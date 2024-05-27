@@ -32,6 +32,7 @@ const SmallBoxes = ({title, value}) => {
     )
 }
 const ViewAnimal = ({route, navigation}) =>{
+    console.log(route.params)
     const {animalObject} = route.params
     const {age, mainName, status, location, traitsAndPersonality, notes} = animalObject
     const newAge = boxContentGenerator("age", age)
@@ -282,6 +283,6 @@ const styles = StyleSheet.create({
     },
     adoptButtonContainer: {
         alignItems:'center',
-        marginTop: 20
+        marginVertical: 20
     }
 })

@@ -14,20 +14,16 @@ import RadioButton from "../components/RadioButton";
 import FormButton from "../components/FormButton";
 import { useState } from "react";
 const AdoptionFormScreen3 =({route, navigation}) =>{
+    const data = route.params
     const [placeToKeep, setPlaceToKeep] = useState("")
     const [locationInfo, setLocationInfo] = useState("")
     const [leashingInfo, setLeashingInfo] = useState("")
-    console.log(route.params)
     const generateRouteParam = () => {
-        const previousScreenParam = route.params
-        return (
-            {
-                ...previousScreenParam,
-                placeToKeep,
-                locationInfo,
-                leashingInfo,            
-            }
-        )
+        data.append("placeToKeep", placeToKeep);
+        data.append("locationInfo", locationInfo);
+        data.append("leashingInfo", leashingInfo);
+
+        return data;
     }
     const goToNext = () =>{
         const naviParams = generateRouteParam()
