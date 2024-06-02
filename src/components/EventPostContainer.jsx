@@ -9,43 +9,62 @@ import {
     ScrollView
   } from "react-native";
 import { Color, FontFamily, FontSize } from "../assets/events/GlobalStyles";
+import { localMachineIPAddress, port, apiStartString } from "../utils/networkConf";
+import { useEffect, useState } from "react";
+import { formatDate } from "../utils/DateBasedUtilityFunctions";
+import axios from "axios";
+const EventPostContainer = ({event}) =>{
+    const {content, contentImgurl, title, location, date} = event;
+    const[imgUrl, setImageUrl] = useState("");
 
-const EventPostContainer = ({hasImage}) =>{
+    useEffect(() =>{
+        getImageURL()
+    }, [])
+    const getImageURL = async() => {
+        await axios.get(`http://${localMachineIPAddress}:${port}/api/getImageUrl?objectKey=${contentImgurl}`)
+        .then(result =>{
+            if(result && result.data && result.data.data){
+                setImageUrl(result.data.data);
+            }else{
+                setImageUrl(result.data.data)
+            }
+        })
+        .catch(err =>{
+            console.log(err)
+        })
+    }
     return (
     <View style = {[styles.eventMainContainer]}>
         {/* image container */}
         {
-            hasImage?         
+            imgUrl.length?        
             <View style = {[styles.postImageContainer]}>
                 <Image
                 resizeMode="cover"
                 style= {[styles.postImage]}
-                source={require("../assets/events/event_img_placeholder.png")}/>
+                source={{uri: imgUrl}}/>
             </View>
             :
             <></>
         }
         {/* other details */}
         <View style = {[styles.descriptionContainer]}>
-            <Text style = {[styles.eventTitle]}>event title</Text>
+            <Text style = {[styles.eventTitle]}>{title}</Text>
             <View style = {[styles.detailContainer]}>
                 {/* date */}
                 <Text style={[styles.detailtext]}>
-                    May 28, 2024 | 
+                    {formatDate(new Date(date))}| 
                 </Text>
                 {/* time */}
-                <Text style={[styles.detailtext]}>
-                    4:30 PM | 
-                </Text>
                 {/* location */}
                 <Text style={[styles.detailtext]}>
-                    CDH
+                    {location}
                 </Text>
             </View>
             {/* description */}
             <View style = {[styles.bottomText]}>
                 <Text style={[styles.detailtext]}>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                    {content}
                 </Text>
             </View>
         </View>

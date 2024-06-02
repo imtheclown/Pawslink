@@ -1,6 +1,11 @@
 import * as React from "react";
 import { Pressable, Text, StyleSheet, View, Image, SafeAreaView, ScrollView, FlatList } from "react-native";
-import { Color, FontFamily, FontSize } from "../assets/view_animal/GlobalStyles";
+import { Color, FontFamily, FontSize } from "../assets/view_animal/GlobalStyles"
+import { Sex } from "../utils/CustomTypes";
+import { convertToMDY } from "../utils/DateBasedUtilityFunctions";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { localMachineIPAddress, port, apiStartString } from "../utils/networkConf";
 
 // placeholders for nows
 const lastVaccination = {
@@ -32,19 +37,35 @@ const SmallBoxes = ({title, value}) => {
     )
 }
 const ViewAnimal = ({route, navigation}) =>{
-    console.log(route.params)
     const {animalObject} = route.params
-    const {age, mainName, status, location, traitsAndPersonality, notes} = animalObject
+    const [animalImgUrl, setImageUrl] = useState("")
+    const {age, mainName, status, location, traitsAndPersonality, notes, imgUrl, sex, sterilizationDate} = animalObject
     const newAge = boxContentGenerator("age", age)
     const newStatus = boxContentGenerator("status", status)
-    
-    const boxes = [newAge, newStatus, lastVaccination, lastDeworm]
+    const sterilizationDateInfo = boxContentGenerator("sterilization date", convertToMDY(sterilizationDate))
+
+    const boxes = [newAge, newStatus, lastVaccination, lastDeworm, sterilizationDateInfo]
     const goBackToBrowse = () =>{
         navigation.goBack();
     }
     const gotoForms = () =>{
-        navigation.navigate({name:'Adoption Form 1'})
+        navigation.navigate({name:'Adoption Form 1', params: {animalId: animalObject._id}})
     }
+    const getImageURL = async() => {
+        await axios.get(`http://${localMachineIPAddress}:${port}/api/getImageUrl?objectKey=${imgUrl}`)
+        .then(result =>{
+            if(result && result.data && result.data.data){
+                setImageUrl(result.data.data);
+            }else{
+                setImageUrl(result.data.data)
+            }
+        }).catch(err =>{
+            console.log(err);
+        })
+    }
+    useEffect(() =>{
+        getImageURL();
+    }, [])
     return(
         <SafeAreaView 
         style = {[styles.mainContainer, styles.sectionContainer]}>
@@ -66,7 +87,7 @@ const ViewAnimal = ({route, navigation}) =>{
                         <Image
                             style={styles.animalImage}
                             resizeMode="cover"
-                            source={require("../assets/view_animal/image-82.png")}
+                            source={animalImgUrl .length?{uri:animalImgUrl}:require("../assets/view_animal/image-82.png")}
                         />
                     </View>
                     {/* animal name, sex and location */}
@@ -79,7 +100,7 @@ const ViewAnimal = ({route, navigation}) =>{
                             <Image
                                     style={styles.genderIcon}
                                     resizeMode="cover"
-                                    source={require("../assets/general/woman-21-1.png")}
+                                    source={sex[0].toUpperCase() === Sex.FEMALE ?require("../assets/general/woman-21-1.png"):require("../assets/general/man-20-1.png")}
                             />
                         </View>
                         {/* location */}
@@ -159,11 +180,13 @@ const styles = StyleSheet.create({
         marginLeft: 15
     },
     scrollViewContainer: {
-        flex: 12,
+        height: '92%',
         flexDirection: 'column',
     }, 
     scrollViewStyle: {
         flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     animalImage: {
         width: 339,
@@ -209,18 +232,22 @@ const styles = StyleSheet.create({
     },
     smallBoxesContainer:{
         marginTop: 10,
+        width: '100%',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     smallBoxesStyle:{
-        justifyContent: 'center',
-        width: 345,
+        alignItems:'center',
+        justifyContent: 'flex-start',
+        width: '90%',
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
     boxContainer :{
-        width: 172,
-        marginTop: 15
+        justifyContent:'center',
+        width: '50%',
+        marginTop: 15,
     },
     titleStyle:{
         fontSize: FontSize.size_xs,

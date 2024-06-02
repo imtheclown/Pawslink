@@ -2,15 +2,13 @@ import QRCodeScanner from "react-native-qrcode-scanner";
 import { View, Image, StyleSheet, Pressable, Text,  SafeAreaView } from "react-native";
 import { FontFamily, Color } from "../assets/scanner/GlobalStyles";
 import { useContext } from "react";
-import { useObject, useQuery } from "@realm/react";
-import { Animal } from "../database/schemas/Schema";
 import { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
-
 import { ConnectionContext } from "../components/ConnectionContext";
-import { AnimalISLocalWrapper, AnimalISSyncWrapper } from "../components/AnimalISWrappers";
 import { SerializableAnimalInstance } from "../components/AnimalProfileBox";
 import { Realm } from 'realm'
+import { AnimalProvider, useAnimalObject } from "../context/RealmContext";
+import { AnimalSchema } from "../database/schemas/Schema";
 
 const CustomMarker = () => {
 
@@ -54,9 +52,8 @@ const ScanHandleScreen = ({ animalID, ClearAnimalID }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const animalObjectId = new Realm.BSON.ObjectId(animalID);
-    const animalInstance = useObject(Animal, animalObjectId);
+    const animalInstance = useAnimalObject(AnimalSchema, animalObjectId);
     const navigation = useNavigation();
-  
     useEffect(() => {
       if (animalInstance) {
         const animalObject = SerializableAnimalInstance(animalInstance);
@@ -112,12 +109,9 @@ const ScanHandleScreen = ({ animalID, ClearAnimalID }) => {
 const AnimalQRCodeScanner = () =>{
     const isConnected = useContext(ConnectionContext)
     return (
-        // temporary for now
-        // local is used when there is internet connection since the synced is not implemented yet
-        <>
-            {isConnected ? <AnimalISLocalWrapper children={<AnimalQRCodeScannerMain/>}/>
-            : <AnimalISLocalWrapper children={<AnimalQRCodeScannerMain/>}/>}
-        </>
+      <AnimalProvider>
+        <AnimalQRCodeScannerMain/>
+      </AnimalProvider>
     )
 }
 export default AnimalQRCodeScanner

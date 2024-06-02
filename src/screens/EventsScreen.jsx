@@ -10,9 +10,36 @@ import {
   } from "react-native";
 import { Color, FontFamily, FontSize } from "../assets/events/GlobalStyles";
 import EventPostContainer from "../components/EventPostContainer";
+import axios from "axios";
+import { useState,useEffect } from "react";
+import { localMachineIPAddress, port, apiStartString } from "../utils/networkConf";
+import LoadingModal from "../components/LoadingModal";
 const EventsScreen = () => {
+    const [events, setEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const getEvents = async () =>{
+        setIsLoading(true)
+        await axios.get(`http:${localMachineIPAddress}:${port}/${apiStartString}/getEvent?all=true`)
+        .then(
+            result =>{
+                if(result && result.data && result.data.data){
+                    setEvents(result.data.data);
+                }else{
+                    setEvents(result.data)
+                }
+                setIsLoading(false);
+            }
+        ).catch(err =>{
+            console.log(err);
+            setIsLoading(false);
+        })
+    }
+    useEffect(() =>{
+        getEvents();
+    }, []);
     return (
         <SafeAreaView style = {[styles.flexContainer, styles.mainContainer]}>
+            <LoadingModal isLoading={isLoading}></LoadingModal>
             {/* header */}
             <View style={[styles.headerContainer]}
             >
@@ -27,9 +54,12 @@ const EventsScreen = () => {
             <ScrollView 
             style ={[styles.eventContainer]}
             >
-                <EventPostContainer hasImage={true}/>
-                <EventPostContainer/>
-                <EventPostContainer hasImage={true}/>
+                {events.length?
+                    events.map((item, index) => 
+                        <EventPostContainer event={item} key={index}/>
+                    ):
+                    <Text style ={[styles.flexContainer, styles.eventText]}>no events</Text>
+                }
             </ScrollView>
 
         </SafeAreaView>

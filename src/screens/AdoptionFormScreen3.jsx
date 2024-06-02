@@ -15,13 +15,13 @@ import FormButton from "../components/FormButton";
 import { useState } from "react";
 const AdoptionFormScreen3 =({route, navigation}) =>{
     const data = route.params
-    const [placeToKeep, setPlaceToKeep] = useState("")
-    const [locationInfo, setLocationInfo] = useState("")
-    const [leashingInfo, setLeashingInfo] = useState("")
+    const [adoptedPetFutureAddress, setPlaceToKeep] = useState("")
+    const [inDoorOrOutdoor, setLocationInfo] = useState("")
+    const [leashOrCaged, setLeashingInfo] = useState("")
     const generateRouteParam = () => {
-        data.append("placeToKeep", placeToKeep);
-        data.append("locationInfo", locationInfo);
-        data.append("leashingInfo", leashingInfo);
+        data.append("adoptedPetFutureAddress", adoptedPetFutureAddress);
+        data.append("inDoorOrOutdoor", inDoorOrOutdoor);
+        data.append("leashOrCaged", leashOrCaged);
 
         return data;
     }
@@ -48,7 +48,7 @@ const AdoptionFormScreen3 =({route, navigation}) =>{
                 <ScrollView style = {[styles.scrollViewContainer]}>
                     <FormTextInput
                     title={"where do you plan to keep the adopted dog/cat?"}
-                    value={placeToKeep}
+                    value={adoptedPetFutureAddress}
                     valueSetter={setPlaceToKeep}
                     />
                     <RadioButton

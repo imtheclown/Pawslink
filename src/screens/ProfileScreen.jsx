@@ -13,10 +13,31 @@ import { Avatar } from "@rneui/base";
 import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import SettingsButtonContainer from "../components/SettingsButtonContainer";
 import { useNavigation } from "@react-navigation/native";
+import { createRealmContext } from "@realm/react";
+import { SavedUser } from "../database/schemas/SavedUser";
+
+const profileContext = createRealmContext({
+    schema: [SavedUser],
+    path:"SavedUser.realm"
+})
+
+const {RealmProvider: ProfileProvider,
+useRealm: useProfileRealm,
+useQuery: useProfileQuery
+} = profileContext;
+
+const ProfileScreenWrapper = () => {
+    return (
+        <ProfileProvider>
+            <ProfileScreen/>
+        </ProfileProvider>
+    )
+}
 
 const ProfileScreen = () => {
     const navigation = useNavigation();
 
+    const user = useProfileQuery(SavedUser);
     const gotoEditProfile = () =>{
         navigation.navigate("Edit Profile")
     }
@@ -191,4 +212,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default ProfileScreen
+export default ProfileScreenWrapper

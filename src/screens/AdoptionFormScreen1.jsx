@@ -12,10 +12,22 @@ import { FontFamily, Color, FontSize, Border } from "../assets/forms/GlobalStyle
 import FormButton from "../components/FormButton";
 import FormTextInput from "../components/FormTextInput";
 import CheckBox from "@react-native-community/checkbox";
+import { AdoptionRequestProvider, useAdoptionRequestObject, useAdoptionRequestRealm, useAdoptionRequestQuery } from "../context/RealmContext";
+import AdoptionFormSchema from "../database/schemas/AdoptionRequest";
+const AdoptionFormScreen1 = ({route, navigation}) => {
+    return(
+        <AdoptionRequestProvider>
+            <AdoptionFormScreen route={route} navigation={navigation}/>
+        </AdoptionRequestProvider>
+    )
+}
 
-const AdoptionFormScreen1 = ({route, navigation}) =>{
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
+const AdoptionFormScreen = ({route, navigation}) =>{
+    console.log(route.params)
+    const adoptionRequestData = useAdoptionRequestQuery(AdoptionFormSchema);
+    console.log(adoptionRequestData);
+    const [fname, setFirstName] = useState("")
+    const [lname, setLastName] = useState("")
     const [age, setAge] = useState("0")
     const [isStudent, setIsStudent] = useState(true)
     const [contactNumber, setContactNumber] = useState("")
@@ -27,8 +39,8 @@ const AdoptionFormScreen1 = ({route, navigation}) =>{
     const data = new FormData()
     const generateCurrentFormDataObject = () =>{
 
-        data.append('firstname', firstName);
-        data.append('lastname', lastName);
+        data.append('firstname', fname);
+        data.append('lastname', lname);
         data.append('age', age);
         data.append('isStudent', isStudent);
         data.append('contactNumber', contactNumber);
@@ -36,6 +48,7 @@ const AdoptionFormScreen1 = ({route, navigation}) =>{
         data.append('faceBookLink', faceBookLink);
         data.append('completeHomeAdd', completeHomeAddress);
         data.append('currentHomeAdd', currentHomeAddress);
+        data.append('animalId', route.params.animalId);
 
         return data
     }
@@ -61,11 +74,11 @@ const AdoptionFormScreen1 = ({route, navigation}) =>{
             <View style = {[styles.formContainer, styles.centeredContainer]}>
                 <ScrollView style = {[styles.scrollViewContainer]}>
                 <FormTextInput title={'first name'}
-                value={firstName}
+                value={fname}
                 valueSetter={setFirstName}
                 />
                 <FormTextInput title={'last name'}
-                value={lastName}
+                value={lname}
                 valueSetter={setLastName}
                 />
                 <View style={[styles.ageStudentContainer]}>

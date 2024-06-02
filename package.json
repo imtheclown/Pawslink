@@ -41,7 +41,8 @@
     "react-native-screens": "^3.30.1",
     "react-native-ui-datepicker": "^2.0.2",
     "react-native-vector-icons": "^10.0.3",
-    "realm": "^12.6.2"
+    "realm": "^12.6.2",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

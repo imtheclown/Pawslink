@@ -70,7 +70,8 @@ const PostContainer = ({username, email, content, postImage, hasImage, title, co
                     </View>
                 </View>
                 {/* image part */}
-                {hasImage?
+                {
+                    imgUrl.length?
                     <View style={[styles.postImageContainer]}>
                         <View style = {[styles.contentImageContainer]}>
                             <Image

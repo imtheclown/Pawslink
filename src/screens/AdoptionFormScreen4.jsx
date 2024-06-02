@@ -17,13 +17,13 @@ import RadioButton from "../components/RadioButton";
 const AdoptionFormScreen4 = ({route, navigation}) => {
     const data = route.params;
     const [basicNecessities, setBasicNecessities] = useState("")
-    const [enrichmentAct, setEnrichmentAct] = useState("")
-    const [awarenessSource, setAwarenessSource] = useState("")
+    const [ enrichmentActivity, setEnrichmentAct] = useState("")
+    const [hearAboutUs, setAwarenessSource] = useState("")
 
     const generateRouteParam = () =>{
         data.append("basicNecessities", basicNecessities);
-        data.append("enrichmentAct", enrichmentAct);
-        data.append('awarenessSource', awarenessSource);
+        data.append("enrichmentAct", enrichmentActivity);
+        data.append('hearAboutUs', hearAboutUs);
         return data;
     }
     const goToNext = () => {
@@ -54,8 +54,8 @@ const AdoptionFormScreen4 = ({route, navigation}) => {
                         numLines={5}
                     />
                     <FormTextInput
-                        value={enrichmentAct}
-                        valueSetter={setEnrichmentAct}
+                        value={enrichmentActivity}
+                        valueSetter={enrichmentActivity}
                         title={"name one (1) enrichment activity for dog/cat?"}
                     />
                     <RadioButton

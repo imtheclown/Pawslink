@@ -12,7 +12,11 @@ import { capitalizeFirstLetter } from "../utils/TextBasedUtilityFunctions";
 import FormButton from "../components/FormButton";
 import CheckBox from "@react-native-community/checkbox";
 import { useState } from "react";
+import axios from "axios";
+import { localMachineIPAddress, port, apiStartString } from "../utils/networkConf";
+import LoadingModal from "../components/LoadingModal";
 const DataPrivacyContentScreen = ({route, navigation}) =>{
+    const [isLoading, setIsLoading] = useState(false);
     // perform write operation
     const data = route.params;
     const [agree, setAgree] = useState(false)
@@ -24,8 +28,30 @@ const DataPrivacyContentScreen = ({route, navigation}) =>{
     const goBack = () =>{
         navigation.goBack()
     }
+
+    const createAdoptionRequest = async() =>{
+        setIsLoading(true)
+        await axios.post(`http://${localMachineIPAddress}:${port}/api/addAdoptionForm`,
+        data,
+        {
+            headers:{
+                Accept: 'Application/json',
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then(
+            result=>{
+                setIsLoading(false);
+                console.log(result)
+                gotoThanks();
+            }
+        ).catch(err =>{
+            setIsLoading(false);
+            console.log(err)
+        })
+    }
     return(
         <SafeAreaView style ={[styles.flexContainer, styles.mainContainer]}>
+            <LoadingModal isLoading={isLoading}/>
             <View style ={[styles.contentContainer]}>
                 <Text style ={[styles.titleText]}>
                     {capitalizeFirstLetter(`data privacy consent`)}
@@ -48,7 +74,7 @@ const DataPrivacyContentScreen = ({route, navigation}) =>{
                     <Text style ={[styles.checkBoxText]}> I understand and agree to the privacy statement above.</Text>
                 </View>
                 <FormButton
-                eventHandler={gotoThanks}
+                eventHandler={createAdoptionRequest}
                 disable={!agree}
                 textlabel={capitalizeFirstLetter("continue")}
                 styleButton={styles.continueButton}

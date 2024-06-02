@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   FlatList,
 } from "react-native";
-import {useQuery, useRealm } from "@realm/react";
 
 import {FontFamily } from "../assets/browse_animals/GlobalStyles";
 import AnimalProfileBox from "../components/AnimalProfileBox";
@@ -23,33 +22,11 @@ import { Animal, AnimalSchema } from "../database/schemas/Schema";
 import { LifeStatus } from "../utils/CustomTypes";
 import axios from "axios";
 import { localMachineIPAddress, port } from "../utils/networkConf";
-import { createRealmContext } from "@realm/react";
 import { Realm } from "realm";
 // returns JSX element wrapped in Realm elements
 // access to database, both local and synced
-
-const UpdateDateContext = createRealmContext({
-    schema: [UpdateDateSchema],
-    path:"Animal.realm"
-})
-
-const AnimalContext = createRealmContext({
-    schema: [AnimalSchema],
-    path:"UpdateDate.realm"
-})
-
-const {
-    RealmProvider: UpdateDateProvider,
-    useRealm: useUpdateDateRealm,
-    useQuery: useUpdateDateQuery
-} = UpdateDateContext;
-
-const {
-    RealmProvider: AnimalProvider,
-    useRealm: useAnimalRealm,
-    useQuery: useAnimalQuery
-} = AnimalContext
-
+import { AnimalProvider, useAnimalObject, useAnimalQuery, useAnimalRealm } from "../context/RealmContext";
+import { UpdateDateProvider, useUpdateDateQuery, useUpdateDateRealm } from "../context/RealmContext";
   
 const BrowseAnimalWrapper = () => {
     return (
@@ -74,7 +51,6 @@ const categories = [TagNames.ALL, TagNames.CAT, TagNames.DOG, TagNames.FOR_ADOPT
 
 import { useNavigation } from "@react-navigation/native";
 import { Types } from "realm";
-import { create } from "react-test-renderer";
 
 function BrowseAnimalMainContent(){
     const navigation = useNavigation();
@@ -86,9 +62,9 @@ function BrowseAnimalMainContent(){
     const animals = Array.from(animalQuery)
     // all animals upon the opening of the up
 
-    const [updating, setUpdating] = useState(false);
     const[isConnected, setIsconnected] = useState(false);
     const [animalList, setAnimalList] = useState(animals);
+    const [updatedAnimals, setUpdatedAnimals] = useState([]);
     // filter is equivalent to tag names
     // defaults to all, equivalently, the animalList defaults to the whole animalList
     const [filter, setFilter] = useState(TagNames.ALL)
@@ -96,65 +72,95 @@ function BrowseAnimalMainContent(){
     const [searchKeyWord, setSearchKeyWord] = useState('');
 
     const [isLoading, setIsloading] = useState(false);
+    const [isWriting,setIsWriting] = useState(false);
 
     useEffect(() =>{
         updateData(filter);
         checkInternetConnection();
-        if(isConnected){
+        if(isConnected && !isLoading){
             // update everything
-            if(!updating){
+            if(!isLoading && updatedAnimals.length === 0){
                 updateAnimalCollection();
             }
         }
-    }, [isConnected, filter])
+        if(updatedAnimals.length && !isWriting){
+            write();
+        }
+    }, [isConnected, filter,updatedAnimals])
 
     const updateAnimalCollection = async() =>{
-        setUpdating(true);
-        var data;
-        if(updateDateQuery.length === 0){
-            data = await getUpdates(`&`);
-        }else{
-            data = await getUpdates(`&startDate=${updateDateQuery[0].lastUpdateId}`);
-        }
-        await updateAsynchronously(data);
-        setUpdating(false);
+        setIsloading(true);
+        await axios.get(`http://${localMachineIPAddress}:${port}/api/getanimals?all=true`)
+        .then(result=>{
+            if(result && result.data && result.data.data){
+                setUpdatedAnimals(result.data.data);
+            }else{
+                setUpdatedAnimals(result.data);
+            }
+        }).
+        catch(err =>{
+            console.log(err)
+        })
     }
 
-    const updateAsynchronously = async (logList) =>{
-        for(var i = 0 ; i < logList.length; i++){
-            const animalData = await axios.get(`http://${localMachineIPAddress}:${port}/api/getanimals?id=${logList[i].documentId}`)
-            .then(result =>{
-                let resultData;
-                if(result && result.data && result.data.data){
-                    resultData = result.data.data;
-                }else{
-                    resultData = result.data;
-                }
-                return resultData;
-            }).catch(err => {
-                console.log(err);
-            })
-            const data = animalData[0];
-            animalRealm.write(() =>{
-                data["_id"] = new Types.ObjectId(data._id); 
+    const write = async() =>{
+        setIsWriting(true)
+        animalRealm.write(async() =>{
+            for(var i = 0 ; i < updatedAnimals.length; i++){
+                const data = updatedAnimals[i];
+                animalId = Realm.BSON.ObjectId(data._id)
+                data["_id"] = Realm.BSON.ObjectId(animalId); 
                 animalRealm.create(AnimalSchema, data, 'modified');
-            })
-            updateDateRealm.write(() =>{
-                var id;
-                if(updateDateQuery && updateDateQuery[0] && updateDateQuery[0]._id)
-                {
-                    id = new Types.ObjectId(updateDateQuery[0]._id)
-                }else{
-                    id = new Realm.BSON.ObjectId()
-                }
-                updateDateRealm,create(UpdateDateSchema, {
-                    _id: id,
-                    lastUpdateDate: new Date(),
-                    lastUpdateId: new Types.ObjectId(data._id)
-                })
-            })
-        }
+                setIsWriting(false);
+                setIsloading(false);
+            }
+        })
     }
+
+    // const updateAsynchronously = async (logList) =>{
+    //     console.log(logList);
+    //     if(logList){
+    //         var animalId;
+    //         await animalRealm.write(async() =>{
+    //             for(var i = 0 ; i < logList.length; i++){
+    //                 const animalData = await axios.get(`http://${localMachineIPAddress}:${port}/api/getanimals?_id=${logList[i].documentId}`)
+    //                 .then(result =>{
+    //                     let resultData;
+    //                     if(result && result.data && result.data.data){
+    //                         resultData = result.data.data;
+    //                     }else{
+    //                         resultData = result.data;
+    //                     }
+    //                     return resultData;
+    //                 }).catch(err => {
+    //                     console.log(err);
+    //                 })
+    //                 const data = animalData[0]
+    //                 animalRealm.write(() =>{
+    //                     animalId = Realm.BSON.ObjectId(data._id)
+    //                     data["_id"] = Realm.BSON.ObjectId(animalId); 
+    //                     animalRealm.create(AnimalSchema, data);
+    //                 })
+    //             }
+                
+    //         });
+    //         updateDateRealm.write(() =>{
+    //             var id;
+    //             if(updateDateQuery && updateDateQuery[0] && updateDateQuery[0]._id)
+    //             {
+    //                 id = updateDateQuery[0]._id;
+    //             }else{
+    //                 id = new Realm.BSON.ObjectId()
+    //             }
+    //             updateDateRealm.create(UpdateDateSchema, {
+    //                 _id: id,
+    //                 lastUpdateDate: new Date(),
+    //                 lastUpdateId: animalId
+    //             }, 'modified')
+    //         })
+    //     }
+    //     return;
+    // }
     const checkInternetConnection = async () =>{
         await fetch()
         .then(result =>{
@@ -209,7 +215,7 @@ function BrowseAnimalMainContent(){
     }
 
     const checkDog = (item) =>{
-        if(item.species == TagNames.DOG){
+        if(item.species.toLowerCase() == TagNames.DOG){
             return true
         }else{
             false
@@ -217,7 +223,7 @@ function BrowseAnimalMainContent(){
     }
     
     const checkCat = (item) =>{
-        if(item.species == TagNames.CAT){
+        if(item.species.toLowerCase() == TagNames.CAT){
             return true
         }else{
             return false

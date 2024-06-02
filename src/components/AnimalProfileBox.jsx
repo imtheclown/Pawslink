@@ -9,8 +9,9 @@ import { View,
 import { Sex } from "../utils/CustomTypes";
 import { Border, Color, FontSize, FontFamily } from "../assets/bottom_tabs/GlobalStyles";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { localMachineIPAddress, port } from "../utils/networkConf";
 
 // capitalize the first letter of each element
 function capitalizeFirstLetter(string) {
@@ -18,10 +19,11 @@ function capitalizeFirstLetter(string) {
 }
 // returns array
 const capitalizeElements = (charList) =>{
-    console.log(charList)
-    const capitalizedStrings = charList.map((element) =>(
-        capitalizeFirstLetter(element)
-    ))
+    const capitalizedStrings = charList.map((element) =>{
+        element = element.replace(/\n/g, ', ')
+        return capitalizeFirstLetter(element)
+    
+})
     return capitalizedStrings
 }
 // capitalizes the first letter of the element of properties of Animal schema with type of array
@@ -47,7 +49,8 @@ const SerializableAnimalInstance = (animalObject) =>{
         species: animalObject.species, 
         traitsAndPersonality: processedTraits.join(", "),
         disabilities: processedDisabilities.join(", "),
-        age: animalObject.age > 0? animalObject.age.toString() : "UNKNOWN"
+        age: animalObject.age > 0? animalObject.age.toString() : "UNKNOWN",
+        sterilizationDate: animalObject.sterilizationDate.toString()
 
     }
     return serializedAnimal
@@ -61,17 +64,29 @@ function AnimalProfileBox({flatListItem}){
     const navigation = useNavigation()
     const queryObject = flatListItem.item;
     const animalObject = SerializableAnimalInstance(queryObject)
-    const {mainName, location, sex} = animalObject;
+    const [displayImageURL, setDisplayImageURL] = useState("")
+    const {mainName, location, sex, imgUrl} = animalObject;
     // convert the array to a string of location element seperated with space
     const gotoView = () =>{
         navigation.navigate("View Animal", {animalObject: animalObject})
     }
 
     useEffect(() =>{
-        if(flatListItem && flatListItem.imgUrl && flatListItem.imgUrl.length){
-
+        if(imgUrl && imgUrl.length){
+            getImageURL();
         } 
-    },[])
+    },[]);
+
+    const getImageURL = async() => {
+        await axios.get(`http://${localMachineIPAddress}:${port}/api/getImageUrl?objectKey=${imgUrl}`)
+        .then(result =>{
+            if(result && result.data && result.data.data){
+                setDisplayImageURL(result.data.data);
+            }else{
+                setDisplayImageURL(result.data.data)
+            }
+        })
+    }
     return(
         <TouchableOpacity style={[styles.animalInstanceBoxContainer]} onPress={gotoView}>
             <View style= {[styles.topContainer]} >
@@ -79,7 +94,7 @@ function AnimalProfileBox({flatListItem}){
                 <Image
                     style={styles.animalInstanceImage}
                     resizeMode="cover"
-                    source={require("../assets/browse_animals/image82.png")}
+                    source={displayImageURL.length?{uri:displayImageURL}: require("../assets/browse_animals/image82.png")}
                 />
             </View>
             <View style = {[styles.sectionContainer, styles.bottomContainer]}>
@@ -100,7 +115,7 @@ function AnimalProfileBox({flatListItem}){
                     <Image
                     style = {styles.genderIcon}
                     resizeMode="cover"
-                    source={sex === Sex.FEMALE? require("../assets/general/woman-21-1.png") : require("../assets/general/man-20-1.png")}
+                    source={sex[0].toUpperCase() === Sex.FEMALE? require("../assets/general/woman-21-1.png") : require("../assets/general/man-20-1.png")}
                     />
                 </View>
             </View>

@@ -16,20 +16,21 @@ import { splitByDash } from "../utils/TextBasedUtilityFunctions";
 
 const AdoptionFormScreen2 = ({route, navigation}) =>{
     const data = route.params
-    const [currentPets, setCurrentPets] = useState("0")
-    const [petOwnershipDuration, setPetOwnershipDuration] = useState("0")
-    const [oldestLivingPetAge, setOldestLivingPetAge] = useState("0")
-    const [sterilizationAwareness, setSterilizationAwareness] = useState("0")
-    const [willToSterilize, setWillToSterilize] = useState("0")
-    const [vetClinic, setVetClinic] = useState("")
+    console.log(data);
+    const [noOfPets, setCurrentPets] = useState("0")
+    const [yearsOfBeingPetOwner, setPetOwnershipDuration] = useState("0")
+    const [ageOfOldestLivingPet, setOldestLivingPetAge] = useState("0")
+    const [neuterOrSpayAwareness, setSterilizationAwareness] = useState("0")
+    const [neuterOrSpayWillingness, setWillToSterilize] = useState("0")
+    const [regularVetClinic, setVetClinic] = useState("")
 
     const generateRouteParams = () =>{
-        data.append('currentPetNum', currentPets);
-        data.append('petOwnershipDuration', petOwnershipDuration);
-        data.append('oldestLivingPetAge', oldestLivingPetAge);
-        data.append('sterilizationAwareness', sterilizationAwareness);
-        data.append('willToSterilize', willToSterilize);
-        data.append('vetClinic', vetClinic);
+        data.append('noOfPets', noOfPets);
+        data.append('yearsOfBeingPetOwner', yearsOfBeingPetOwner);
+        data.append('ageOfOldestLivingPet',ageOfOldestLivingPet);
+        data.append('neuterOrSpayAwareness', neuterOrSpayAwareness);
+        data.append('neuterOrSpayWillingness', neuterOrSpayWillingness);
+        data.append('regularVetClinic', regularVetClinic);
         return data;
     }
 
@@ -58,18 +59,18 @@ const AdoptionFormScreen2 = ({route, navigation}) =>{
                     {/* this is present on all of the pages */}
                             {/* add minus button */}
                     <AddMinusButton 
-                    value={currentPets}
+                    value={noOfPets}
                     valueSetter={setCurrentPets}
                     title={capitalizeFirstLetter("do you have pets right now? If yes, how many?")}
                     />
 
                     <FormTextInput
                     title={capitalizeFirstLetter("how long have you been a pet owner?")}
-                    value={petOwnershipDuration}
+                    value={yearsOfBeingPetOwner}
                     valueSetter={setPetOwnershipDuration}
                     />
                     <AddMinusButton 
-                    value={oldestLivingPetAge}
+                    value={ageOfOldestLivingPet}
                     valueSetter={setOldestLivingPetAge} 
                     title={capitalizeFirstLetter('how old is your oldest living pet?')}
                     />
@@ -94,7 +95,7 @@ const AdoptionFormScreen2 = ({route, navigation}) =>{
                         }
                     />
                     <FormTextInput 
-                    value={vetClinic}
+                    value={regularVetClinic}
                     valueSetter={setVetClinic}
                     title={"regular vet clinic"}
                     />
